@@ -1,0 +1,32 @@
+{
+  "name": "carconsult",
+  "version": "1.0.0",
+  "description": "Production-ready used car marketplace platform",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install": "npm install --workspaces",
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "preview": "npm run preview --workspaces",
+    "docker:build": "docker-compose build",
+    "docker:start": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v && docker system prune -f",
+    "audit:security": "npm audit --audit-level=moderate --workspaces"
+  },
+  "keywords": [
+    "car",
+    "marketplace",
+    "used-cars",
+    "react",
+    "node.js",
+    "mongodb"
+  ],
+  "author": "CarConsult Team",
+  "license": "MIT"
+}
