@@ -48,13 +48,7 @@ apiClient.interceptors.response.use(
         // Clear authentication data and logout on 401 Unauthorized
         useAuthStore.getState().logout();
         console.warn('Session expired or invalid token. Logged out automatically.');
-      } else if (error.response.status >= 500) {
-        // Redirect to Server Error page
-        window.location.href = '/500';
       }
-    } else {
-      // Network error (server offline/unreachable)
-      window.location.href = '/500';
     }
     return Promise.reject(error);
   }
