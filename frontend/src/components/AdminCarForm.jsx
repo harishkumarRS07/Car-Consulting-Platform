@@ -42,7 +42,6 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
       });
     } else if (name === 'images' && type === 'file') {
       const files = Array.from(e.target.files);
-      let addedCount = 0;
 
       files.forEach((file) => {
         // Check file size (max 2MB per image for base64)
@@ -65,7 +64,6 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
               images: [...prev.images, reader.result],
             };
           });
-          addedCount++;
         };
         reader.onerror = () => {
           console.error(`Error reading file ${file.name}`);

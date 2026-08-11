@@ -1,16 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Italiana&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+.font-italiana {
+  font-family: 'Italiana', serif;
+}
+
+.font-bodoni {
+  font-family: 'Bodoni Moda', serif;
+}
+
+.font-jakarta {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: auto;
-  overflow-y: scroll;
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-y: scroll;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 
-* {
-  box-sizing: border-box;
+  body {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #0f172a;
+    background-color: #ffffff;
+    letter-spacing: -0.015em;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-family: 'Italiana', serif;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+    color: #0f172a;
+  }
+
+  h2, h3, h4, h5, h6 {
+    font-family: 'Bodoni Moda', serif;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  p {
+    line-height: 1.6;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
 }
 
 html, body {
@@ -18,29 +61,20 @@ html, body {
   background-color: #ffffff;
   overflow-x: hidden;
   overflow-y: auto;
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   overscroll-behavior: none;
-  color: #1a1a1a;
+  color: #0f172a;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
 }
 
 #root {
   background-color: #ffffff;
   min-height: 100vh;
   width: 100%;
-  color: #1a1a1a;
+  color: #0f172a;
   display: flex;
   flex-direction: column;
-}
-
-* {
-  @apply transition-colors duration-300;
-}
-
-body {
-  @apply text-gray-900;
 }
 
 /* Navbar Styles */
@@ -145,4 +179,64 @@ body {
 /* Page Background */
 .page-background {
   @apply bg-gray-50 min-h-screen;
+}
+
+@keyframes home-ticker {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.home-ticker-track {
+  animation: home-ticker 18s linear infinite;
+}
+
+/* Premium Range Input Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #f3e8ff;
+  border-radius: 9999px;
+  outline: none;
+  margin: 10px 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #7c3aed;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(124, 58, 237, 0.4);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #6d28d9;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #7c3aed;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(124, 58, 237, 0.4);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  background: #6d28d9;
 }

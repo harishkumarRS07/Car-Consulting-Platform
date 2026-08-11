@@ -9,18 +9,36 @@ const seedBrands = async () => {
 
     // List of brands that have icon files
     const brandsToAdd = [
-      'Toyota',
+      'Audi',
+      'Mercedes-Benz',
+      'BMW',
+      'Chevrolet',
+      'Citroen',
+      'Datsun',
+      'Fiat',
+      'Force',
+      'Ford',
       'Honda',
       'Hyundai',
+      'Isuzu',
+      'Jaguar',
+      'Jeep',
       'Kia',
-      'Nissan',
-      'Suzuki',
-      'Ford',
-      'Mazda',
+      'Land Rover',
+      'Lexus',
+      'Mahindra',
+      'Maruti Suzuki',
+      'MG',
+      'Mini Cooper',
       'Mitsubishi',
-      'GMC',
-      'Mercedes-Benz',
-      'Mopar',
+      'Nissan',
+      'Porsche',
+      'Renault',
+      'Skoda',
+      'Tata',
+      'Toyota',
+      'Volkswagen',
+      'Volvo',
     ];
 
     // Check if brands already exist
@@ -30,12 +48,12 @@ const seedBrands = async () => {
     // Add missing brands by creating sample cars
     for (const brand of brandsToAdd) {
       const brandExists = existingBrands.some(b => b.toLowerCase() === brand.toLowerCase());
-      
+
       if (!brandExists) {
         // Create a sample car for this brand to ensure brand exists
         const sampleCar = new Car({
           title: `${brand} Sample Car`,
-          brand: brand,
+          brand,
           model: 'Sample',
           price: 500000,
           fuelType: 'petrol',
@@ -52,11 +70,11 @@ const seedBrands = async () => {
           features: [],
           category: 'budget',
           availability: 'in-stock',
-          images: ['https://via.placeholder.com/600x400?text=' + brand],
+          images: [`https://via.placeholder.com/600x400?text=${  brand}`],
           rating: 0,
           reviews: 0,
         });
-        
+
         await sampleCar.save();
         console.log(`✅ Added brand: ${brand}`);
       } else {

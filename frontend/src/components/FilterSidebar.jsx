@@ -1,31 +1,29 @@
 import { useState, useCallback } from 'react';
 import CheckboxFilter from './CheckboxFilter';
 import FilterAccordion from './FilterAccordion';
-import { useFilterReducer } from '../hooks/useFilterReducer';
 import { motion } from 'framer-motion';
 import { Search, RotateCcw } from 'lucide-react';
 
 const BRANDS = ['hyundai', 'maruti', 'honda', 'toyota', 'tata', 'skoda', 'mahindra', 'renault', 'bmw', 'kia', 'volkswagen', 'jeep'];
-const BODY_TYPES = ['sedan', 'suv', 'hatchback', 'muv'];
+const BODY_TYPES = ['sedan', 'suv', 'hatchback', 'muv', 'coupe', 'convertible', 'sports'];
 const FUEL_TYPES = ['petrol', 'diesel', 'cng', 'electric'];
 const TRANSMISSION = ['manual', 'automatic'];
 const CATEGORIES = ['budget', 'assured', 'luxury'];
-const COLORS = ['silver', 'red', 'blue', 'black', 'white', 'grey', 'gold'];
-const OWNER_TYPES = ['1st', '2nd', '3rd'];
 
-export default function FilterSidebar({ onFilterChange }) {
-  const {
-    filters,
-    setSearch,
-    setBrand,
-    setFuelType,
-    setTransmission,
-    setPriceRange,
-    setYearRange,
-    setBodyType,
-    setCategory,
-    reset,
-  } = useFilterReducer();
+export default function FilterSidebar({
+  filters,
+  setSearch,
+  setBrand,
+  setFuelType,
+  setTransmission,
+  setPriceRange,
+  setYearRange,
+  setBodyType,
+  setCategory,
+  reset,
+  onFilterChange,
+  hideHeader = false,
+}) {
 
   const [localSearch, setLocalSearch] = useState('');
 
@@ -86,43 +84,44 @@ export default function FilterSidebar({ onFilterChange }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-[24px] border border-gray-100 shadow-sm overflow-hidden"
+      className={`bg-white rounded-[18px] ${hideHeader ? '' : 'border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.01)]'} overflow-hidden w-full`}
     >
-      <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-        <h2 className="text-lg font-black text-gray-900 tracking-tight">Filters</h2>
-        <button
-          onClick={handleReset}
-          className="p-1.5 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-purple-600 transition-all"
-          title="Reset all"
-        >
-          <RotateCcw size={16} />
-        </button>
-      </div>
+      {!hideHeader && (
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-sm font-black text-gray-950 tracking-tight">Filters</h2>
+          <button
+            onClick={handleReset}
+            className="p-1.5 rounded-lg hover:bg-purple-50 text-gray-400 hover:text-purple-600 transition-all"
+            title="Reset all"
+          >
+            <RotateCcw size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Compact Search */}
-      <div className="p-4 border-b border-gray-50">
+      <div className={`px-5 py-3 border-b border-gray-100 bg-white ${hideHeader ? 'pt-1' : ''}`}>
         <div className="relative group">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
           <input
             type="text"
-            placeholder="Quick search..."
+            placeholder="Search brand, model..."
             value={localSearch}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full bg-gray-50/50 border border-gray-100 rounded-xl h-10 pl-10 pr-4 text-xs font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-200 focus:bg-white transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl h-9 pl-9 pr-4 text-xs font-semibold text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-300 focus:bg-white focus:ring-2 focus:ring-purple-500/10 transition-all duration-200"
           />
         </div>
       </div>
 
-      <div className="overflow-y-auto">
-
+      <div className="divide-y divide-gray-100">
         {/* Price Range */}
         <FilterAccordion title="Price Range" defaultOpen>
-          <div className="space-y-4">
+          <div className="space-y-4 pt-1 pb-2">
             <div>
-              <label className="text-sm text-gray-600 mb-2 block">
-                Min: ₹{filters.priceMin.toLocaleString()}
+              <label className="text-xs font-bold text-gray-500 mb-1 block">
+                Min: <span className="text-purple-650 font-black">₹{filters.priceMin.toLocaleString()}</span>
               </label>
               <input
                 type="range"
@@ -134,12 +133,12 @@ export default function FilterSidebar({ onFilterChange }) {
                   setPriceRange(parseInt(e.target.value), filters.priceMax);
                   onFilterChange();
                 }}
-                className="w-full"
+                className="w-full h-1 bg-purple-100 rounded-lg appearance-none cursor-pointer"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-600 mb-2 block">
-                Max: ₹{filters.priceMax.toLocaleString()}
+              <label className="text-xs font-bold text-gray-500 mb-1 block">
+                Max: <span className="text-purple-650 font-black">₹{filters.priceMax.toLocaleString()}</span>
               </label>
               <input
                 type="range"
@@ -151,7 +150,7 @@ export default function FilterSidebar({ onFilterChange }) {
                   setPriceRange(filters.priceMin, parseInt(e.target.value));
                   onFilterChange();
                 }}
-                className="w-full"
+                className="w-full h-1 bg-purple-100 rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
@@ -159,70 +158,80 @@ export default function FilterSidebar({ onFilterChange }) {
 
         {/* Brand */}
         <FilterAccordion title="Brand">
-          {BRANDS.map((brand) => (
-            <CheckboxFilter
-              key={brand}
-              label={brand}
-              checked={filters.brand.includes(brand)}
-              onChange={() => handleBrandToggle(brand)}
-            />
-          ))}
+          <div className="grid grid-cols-2 gap-2 pt-1 pb-2">
+            {BRANDS.map((brand) => (
+              <CheckboxFilter
+                key={brand}
+                label={brand}
+                checked={filters.brand.includes(brand)}
+                onChange={() => handleBrandToggle(brand)}
+              />
+            ))}
+          </div>
         </FilterAccordion>
 
         {/* Fuel Type */}
         <FilterAccordion title="Fuel Type">
-          {FUEL_TYPES.map((fuel) => (
-            <CheckboxFilter
-              key={fuel}
-              label={fuel}
-              checked={filters.fuelType.includes(fuel)}
-              onChange={() => handleFuelTypeToggle(fuel)}
-            />
-          ))}
+          <div className="space-y-2 pt-1 pb-2">
+            {FUEL_TYPES.map((fuel) => (
+              <CheckboxFilter
+                key={fuel}
+                label={fuel}
+                checked={filters.fuelType.includes(fuel)}
+                onChange={() => handleFuelTypeToggle(fuel)}
+              />
+            ))}
+          </div>
         </FilterAccordion>
 
         {/* Transmission */}
         <FilterAccordion title="Transmission">
-          {TRANSMISSION.map((transmission) => (
-            <CheckboxFilter
-              key={transmission}
-              label={transmission}
-              checked={filters.transmission.includes(transmission)}
-              onChange={() => handleTransmissionToggle(transmission)}
-            />
-          ))}
+          <div className="space-y-2 pt-1 pb-2">
+            {TRANSMISSION.map((transmission) => (
+              <CheckboxFilter
+                key={transmission}
+                label={transmission}
+                checked={filters.transmission.includes(transmission)}
+                onChange={() => handleTransmissionToggle(transmission)}
+              />
+            ))}
+          </div>
         </FilterAccordion>
 
         {/* Body Type */}
         <FilterAccordion title="Body Type">
-          {BODY_TYPES.map((bodyType) => (
-            <CheckboxFilter
-              key={bodyType}
-              label={bodyType}
-              checked={filters.bodyType.includes(bodyType)}
-              onChange={() => handleBodyTypeToggle(bodyType)}
-            />
-          ))}
+          <div className="grid grid-cols-2 gap-2 pt-1 pb-2">
+            {BODY_TYPES.map((bodyType) => (
+              <CheckboxFilter
+                key={bodyType}
+                label={bodyType}
+                checked={filters.bodyType.includes(bodyType)}
+                onChange={() => handleBodyTypeToggle(bodyType)}
+              />
+            ))}
+          </div>
         </FilterAccordion>
 
         {/* Category */}
         <FilterAccordion title="Category">
-          {CATEGORIES.map((category) => (
-            <CheckboxFilter
-              key={category}
-              label={category}
-              checked={filters.category.includes(category)}
-              onChange={() => handleCategoryToggle(category)}
-            />
-          ))}
+          <div className="space-y-2 pt-1 pb-2">
+            {CATEGORIES.map((category) => (
+              <CheckboxFilter
+                key={category}
+                label={category}
+                checked={filters.category.includes(category)}
+                onChange={() => handleCategoryToggle(category)}
+              />
+            ))}
+          </div>
         </FilterAccordion>
 
         {/* Year Range */}
         <FilterAccordion title="Year">
-          <div className="space-y-4">
+          <div className="space-y-4 pt-1 pb-2">
             <div>
-              <label className="text-sm text-gray-600 mb-2 block">
-                From: {filters.yearMin}
+              <label className="text-xs font-bold text-gray-500 mb-1 block">
+                From: <span className="text-purple-650 font-black">{filters.yearMin}</span>
               </label>
               <input
                 type="range"
@@ -233,12 +242,12 @@ export default function FilterSidebar({ onFilterChange }) {
                   setYearRange(parseInt(e.target.value), filters.yearMax);
                   onFilterChange();
                 }}
-                className="w-full"
+                className="w-full h-1 bg-purple-100 rounded-lg appearance-none cursor-pointer"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-600 mb-2 block">
-                To: {filters.yearMax}
+              <label className="text-xs font-bold text-gray-500 mb-1 block">
+                To: <span className="text-purple-650 font-black">{filters.yearMax}</span>
               </label>
               <input
                 type="range"
@@ -249,7 +258,7 @@ export default function FilterSidebar({ onFilterChange }) {
                   setYearRange(filters.yearMin, parseInt(e.target.value));
                   onFilterChange();
                 }}
-                className="w-full"
+                className="w-full h-1 bg-purple-100 rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>

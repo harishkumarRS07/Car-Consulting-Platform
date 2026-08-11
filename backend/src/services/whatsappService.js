@@ -7,7 +7,6 @@ import axios from 'axios';
  */
 
 const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
-const WABA_ID = process.env.WHATSAPP_WABA_ID;
 const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
 const BUSINESS_PHONE_NUMBER = process.env.WHATSAPP_BUSINESS_PHONE_NUMBER; // Admin phone
 const API_VERSION = 'v19.0';
@@ -33,32 +32,6 @@ export const sendBookingNotification = async (bookingData) => {
 
     // WhatsApp Cloud API endpoint
     const url = `https://graph.facebook.com/${API_VERSION}/${PHONE_NUMBER_ID}/messages`;
-
-    const payload = {
-      messaging_product: 'whatsapp',
-      to: BUSINESS_PHONE_NUMBER, // Send to admin
-      type: 'template',
-      template: {
-        name: 'new_booking_notification', // Template must exist on Meta Business Account
-        language: {
-          code: 'en_US',
-        },
-        components: [
-          {
-            type: 'body',
-            parameters: [
-              { type: 'text', text: bookingData.name },
-              { type: 'text', text: bookingData.phone },
-              { type: 'text', text: bookingData.area },
-              { type: 'text', text: `${bookingData.brand} ${bookingData.model}` },
-              { type: 'text', text: bookingData.date },
-              { type: 'text', text: bookingData.timeSlot },
-              { type: 'text', text: bookingData.bookingId },
-            ],
-          },
-        ],
-      },
-    };
 
     // If template doesn't exist, fallback to text message
     const fallbackPayload = {

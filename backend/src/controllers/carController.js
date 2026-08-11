@@ -1,11 +1,14 @@
 import Car from '../models/Car.js';
 import User from '../models/User.js';
+import AppError from '../utils/AppError.js';
 
-export const getCars = async (req, res) => {
+export const getCars = async (req, res, next) => {
   try {
-    const { search, brand, fuelType, transmission, priceMin, priceMax, yearMin, yearMax, bodyType, owner, location, category, page = 1, limit = 12, admin } = req.query;
+    const { search, brand, fuelType, transmission, priceMin, priceMax, yearMin, yearMax, bodyType, owner, location, category, page = 1, limit = 12, admin, sort } = req.query;
 
-    let filter = {};
+    console.log('[DEBUG BACKEND] Raw Query Params:', req.query);
+
+    const filter = {};
 
     // Search filter
     if (search) {
@@ -13,52 +16,63 @@ export const getCars = async (req, res) => {
         { title: { $regex: search, $options: 'i' } },
         { brand: { $regex: search, $options: 'i' } },
         { model: { $regex: search, $options: 'i' } },
+        { variant: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
       ];
     }
 
-    // Brand filter (supports multiple brands)
+    // Brand filter (supports multiple brands, case-insensitive)
     if (brand) {
-      const brands = brand.split(',').map((b) => b.toLowerCase().trim());
-      filter.brand = { $in: brands };
+      const brands = brand.split(',').map((b) => b.trim()).filter(Boolean);
+      if (brands.length > 0) {
+        filter.brand = { $in: brands.map((b) => new RegExp(`^${b}$`, 'i')) };
+      }
     }
 
     // Fuel type filter
     if (fuelType) {
-      const fuelTypes = fuelType.split(',').map((f) => f.toLowerCase().trim());
-      filter.fuelType = { $in: fuelTypes };
+      const fuelTypes = fuelType.split(',').map((f) => f.trim()).filter(Boolean);
+      if (fuelTypes.length > 0) {
+        filter.fuelType = { $in: fuelTypes.map((f) => new RegExp(`^${f}$`, 'i')) };
+      }
     }
 
     // Transmission filter
     if (transmission) {
-      const transmissions = transmission.split(',').map((t) => t.toLowerCase().trim());
-      filter.transmission = { $in: transmissions };
+      const transmissions = transmission.split(',').map((t) => t.trim()).filter(Boolean);
+      if (transmissions.length > 0) {
+        filter.transmission = { $in: transmissions.map((t) => new RegExp(`^${t}$`, 'i')) };
+      }
     }
 
     // Price range filter
     if (priceMin || priceMax) {
       filter.price = {};
-      if (priceMin) filter.price.$gte = parseFloat(priceMin);
-      if (priceMax) filter.price.$lte = parseFloat(priceMax);
+      if (priceMin) {filter.price.$gte = parseFloat(priceMin);}
+      if (priceMax) {filter.price.$lte = parseFloat(priceMax);}
     }
 
     // Year range filter
     if (yearMin || yearMax) {
       filter.year = {};
-      if (yearMin) filter.year.$gte = parseFloat(yearMin);
-      if (yearMax) filter.year.$lte = parseFloat(yearMax);
+      if (yearMin) {filter.year.$gte = parseFloat(yearMin);}
+      if (yearMax) {filter.year.$lte = parseFloat(yearMax);}
     }
 
-    // Body type filter
+    // Body type filter (exact case-insensitive match)
     if (bodyType) {
-      const bodyTypes = bodyType.split(',').map((b) => b.toLowerCase().trim());
-      filter.bodyType = { $in: bodyTypes };
+      const bodyTypes = bodyType.split(',').map((b) => b.trim()).filter(Boolean);
+      if (bodyTypes.length > 0) {
+        filter.bodyType = { $in: bodyTypes.map((b) => new RegExp(`^${b}$`, 'i')) };
+      }
     }
 
     // Owner filter
     if (owner) {
-      const owners = owner.split(',').map((o) => o.toLowerCase().trim());
-      filter.owner = { $in: owners };
+      const owners = owner.split(',').map((o) => o.trim()).filter(Boolean);
+      if (owners.length > 0) {
+        filter.owner = { $in: owners.map((o) => new RegExp(`^${o}$`, 'i')) };
+      }
     }
 
     // Location filter
@@ -68,8 +82,10 @@ export const getCars = async (req, res) => {
 
     // Category filter
     if (category) {
-      const categories = category.split(',').map((c) => c.toLowerCase().trim());
-      filter.category = { $in: categories };
+      const categories = category.split(',').map((c) => c.trim()).filter(Boolean);
+      if (categories.length > 0) {
+        filter.category = { $in: categories.map((c) => new RegExp(`^${c}$`, 'i')) };
+      }
     }
 
     // Exclude booked and sold cars from user UI
@@ -79,12 +95,19 @@ export const getCars = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
+    let sortCriteria = { createdAt: -1 }; // default newest
+    if (sort) {
+      if (sort === 'pricelow') {sortCriteria = { price: 1 };}
+      else if (sort === 'pricehigh') {sortCriteria = { price: -1 };}
+      else if (sort === 'year') {sortCriteria = { year: -1 };}
+    }
+
     const [cars, totalCars] = await Promise.all([
       Car.find(filter)
         .select({ images: { $slice: 1 }, description: 0 })
         .skip(skip)
         .limit(parseInt(limit))
-        .sort({ createdAt: -1 }),
+        .sort(sortCriteria),
       Car.countDocuments(filter)
     ]);
 
@@ -99,16 +122,16 @@ export const getCars = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching cars', error: error.message });
+    next(error);
   }
 };
 
-export const getCarById = async (req, res) => {
+export const getCarById = async (req, res, next) => {
   try {
     const car = await Car.findById(req.params.id);
 
     if (!car) {
-      return res.status(404).json({ success: false, message: 'Car not found' });
+      return next(new AppError('Car not found', 404));
     }
 
     // Get similar cars
@@ -127,11 +150,11 @@ export const getCarById = async (req, res) => {
       similar: similarCars,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching car', error: error.message });
+    next(error);
   }
 };
 
-export const createCar = async (req, res) => {
+export const createCar = async (req, res, next) => {
   try {
     const carData = req.body;
 
@@ -149,22 +172,18 @@ export const createCar = async (req, res) => {
       const messages = Object.values(error.errors)
         .map(err => err.message)
         .join(', ');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Validation error: ' + messages,
-        error: messages 
-      });
+      return next(new AppError(`Validation error: ${  messages}`, 400));
     }
 
-    res.status(500).json({ success: false, message: 'Error creating car', error: error.message });
+    next(error);
   }
 };
 
-export const updateCar = async (req, res) => {
+export const updateCar = async (req, res, next) => {
   try {
     // Validate that ID is provided
     if (!req.params.id) {
-      return res.status(400).json({ success: false, message: 'Car ID is required' });
+      return next(new AppError('Car ID is required', 400));
     }
 
     const car = await Car.findByIdAndUpdate(req.params.id, req.body, {
@@ -173,7 +192,7 @@ export const updateCar = async (req, res) => {
     });
 
     if (!car) {
-      return res.status(404).json({ success: false, message: 'Car not found' });
+      return next(new AppError('Car not found', 404));
     }
 
     res.status(200).json({
@@ -187,31 +206,24 @@ export const updateCar = async (req, res) => {
       const messages = Object.values(error.errors)
         .map(err => err.message)
         .join(', ');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Validation error: ' + messages,
-        error: messages 
-      });
+      return next(new AppError(`Validation error: ${  messages}`, 400));
     }
     
     // Handle cast errors (invalid ID format)
     if (error.name === 'CastError') {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid car ID format' 
-      });
+      return next(new AppError('Invalid car ID format', 400));
     }
 
-    res.status(500).json({ success: false, message: 'Error updating car', error: error.message });
+    next(error);
   }
 };
 
-export const deleteCar = async (req, res) => {
+export const deleteCar = async (req, res, next) => {
   try {
     const car = await Car.findByIdAndDelete(req.params.id);
 
     if (!car) {
-      return res.status(404).json({ success: false, message: 'Car not found' });
+      return next(new AppError('Car not found', 404));
     }
 
     res.status(200).json({
@@ -219,11 +231,11 @@ export const deleteCar = async (req, res) => {
       message: 'Car deleted successfully',
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error deleting car', error: error.message });
+    next(error);
   }
 };
 
-export const addToWishlist = async (req, res) => {
+export const addToWishlist = async (req, res, next) => {
   try {
     const { carId } = req.body;
     const userId = req.user.id;
@@ -236,11 +248,11 @@ export const addToWishlist = async (req, res) => {
       wishlist: user.wishlist,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error adding to wishlist', error: error.message });
+    next(error);
   }
 };
 
-export const removeFromWishlist = async (req, res) => {
+export const removeFromWishlist = async (req, res, next) => {
   try {
     const carId = req.params.carId;
     const userId = req.user.id;
@@ -253,11 +265,11 @@ export const removeFromWishlist = async (req, res) => {
       wishlist: user.wishlist,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error removing from wishlist', error: error.message });
+    next(error);
   }
 };
 
-export const getFeaturedCars = async (req, res) => {
+export const getFeaturedCars = async (req, res, next) => {
   try {
     const cars = await Car.find({ availability: { $nin: ['booked', 'sold'] } })
       .select({ images: { $slice: 1 }, description: 0 })
@@ -269,11 +281,11 @@ export const getFeaturedCars = async (req, res) => {
       cars,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching featured cars', error: error.message });
+    next(error);
   }
 };
 
-export const getNewArrivals = async (req, res) => {
+export const getNewArrivals = async (req, res, next) => {
   try {
     const cars = await Car.find({ availability: { $nin: ['booked', 'sold'] } })
       .select({ images: { $slice: 1 }, description: 0 })
@@ -285,11 +297,11 @@ export const getNewArrivals = async (req, res) => {
       cars,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching new arrivals', error: error.message });
+    next(error);
   }
 };
 
-export const getDashboardStats = async (req, res) => {
+export const getDashboardStats = async (req, res, next) => {
   try {
     const [totalCars, activeListing, bookedCars, soldCars, avgPriceData] = await Promise.all([
       Car.countDocuments(),
@@ -312,7 +324,7 @@ export const getDashboardStats = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching stats', error: error.message });
+    next(error);
   }
 };
 

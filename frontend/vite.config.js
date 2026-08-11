@@ -7,14 +7,14 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5000', 
         changeOrigin: true,
       },
     },
   },
   build: {
     // Production build optimizations
-    minify: 'terser',
+    minify: 'esbuild',
     sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
     
     // Chunk splitting for better caching

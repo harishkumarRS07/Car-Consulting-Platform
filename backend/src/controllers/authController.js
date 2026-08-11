@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import AppError from '../utils/AppError.js';
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET || 'default_secret', {
@@ -7,38 +8,20 @@ const generateToken = (id, role) => {
   });
 };
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   try {
-    const { name, phone, email, password, confirmPassword } = req.body;
-
-    // Validation
-    if (!name || !phone || !email || !password || !confirmPassword) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({ success: false, message: 'Passwords do not match' });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
-    }
+    const { name, phone, email, password } = req.body;
 
     // Check if email already exists
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ success: false, message: 'Email already registered' });
+      return next(new AppError('Email already registered', 400));
     }
 
     // Check if phone already exists
     user = await User.findOne({ phone });
     if (user) {
-      return res.status(400).json({ success: false, message: 'Phone number already registered' });
-    }
-
-    // Validate phone format
-    if (!/^[0-9]{10}$/.test(phone)) {
-      return res.status(400).json({ success: false, message: 'Phone number must be 10 digits' });
+      return next(new AppError('Phone number already registered', 400));
     }
 
     user = new User({
@@ -63,31 +46,28 @@ export const register = async (req, res) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        notificationSettings: user.notificationSettings,
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Registration failed', error: error.message });
+    next(error);
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password are required' });
-    }
 
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return next(new AppError('Invalid email or password', 401));
     }
 
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return next(new AppError('Invalid email or password', 401));
     }
 
     const token = generateToken(user._id, user.role);
@@ -102,28 +82,81 @@ export const login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        notificationSettings: user.notificationSettings,
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Login failed', error: error.message });
+    next(error);
   }
 };
 
-export const getProfile = async (req, res) => {
+export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).populate('wishlist');
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return next(new AppError('User not found', 404));
     }
 
     res.status(200).json({
       success: true,
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        wishlist: user.wishlist,
+        notificationSettings: user.notificationSettings,
+        createdAt: user.createdAt,
+      },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching profile', error: error.message });
+    next(error);
   }
 };
 
-export default { register, login, getProfile };
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, phone, password, notificationSettings } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+
+    if (name) {user.name = name;}
+    if (phone) {user.phone = phone;}
+
+    if (password) {
+      user.password = password; // pre-save hashes it
+    }
+
+    if (notificationSettings) {
+      user.notificationSettings = {
+        ...user.notificationSettings,
+        ...notificationSettings,
+      };
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        notificationSettings: user.notificationSettings,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { register, login, getProfile, updateProfile };

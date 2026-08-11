@@ -14,7 +14,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        italiana: ['Italiana', 'serif'],
+        bodoni: ['Bodoni Moda', 'serif'],
       },
     },
   },

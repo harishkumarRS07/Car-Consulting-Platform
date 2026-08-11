@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Car, Zap, TrendingUp, Grid, Sparkles, Wind, Rocket } from 'lucide-react';
+import { Car, Zap, TrendingUp, Grid, Sparkles, Wind, Rocket, ChevronLeft, ChevronRight } from 'lucide-react';
 import { carsAPI } from '../services/api';
 import { useCarsStore } from '../context/store';
-import { formatPriceCompact } from '../utils/priceFormatter';
+import CarCard from './CarCard';
+import SkeletonCarCard from './SkeletonCarCard';
 
 export default function ExploreByBodyType() {
   const navigate = useNavigate();
@@ -12,6 +13,18 @@ export default function ExploreByBodyType() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(false);
   const { addToWishlist, removeFromWishlist, wishlist } = useCarsStore();
+  const bodyScrollRef = useRef(null);
+
+  const scrollBody = (direction) => {
+    const container = bodyScrollRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.75;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Text capitalization utility
   const formatText = (text) => {
@@ -25,43 +38,36 @@ export default function ExploreByBodyType() {
       id: 'hatchback',
       label: 'Hatchback',
       icon: Car,
-      count: 0,
     },
     {
       id: 'sedan',
       label: 'Sedan',
       icon: TrendingUp,
-      count: 0,
     },
     {
       id: 'suv',
       label: 'SUV',
       icon: Grid,
-      count: 0,
     },
     {
       id: 'muv',
       label: 'MUV',
       icon: Zap,
-      count: 0,
     },
     {
       id: 'coupe',
       label: 'Coupe',
       icon: Sparkles,
-      count: 0,
     },
     {
       id: 'convertible',
       label: 'Convertible',
       icon: Wind,
-      count: 0,
     },
     {
       id: 'sports',
       label: 'Sports',
       icon: Rocket,
-      count: 0,
     },
   ];
 
@@ -69,22 +75,21 @@ export default function ExploreByBodyType() {
   useEffect(() => {
     const fetchCarsByBodyType = async () => {
       setLoading(true);
+      const startTime = Date.now();
       try {
-        // Fetch cars - the API should handle bodyType filtering
-        const response = await carsAPI.getCars({ limit: 100 });
-        const allCars = response.data.cars || [];
+        const response = await carsAPI.getCars({ bodyType: activeBodyType, limit: 100 });
+        const fetchedCars = response.data.cars || [];
         
-        // If cars have bodyType, filter them. Otherwise show first 10 cars
-        const hasBodyType = allCars.some(car => car.bodyType);
-        
-        let filteredCars = allCars;
-        if (hasBodyType) {
-          filteredCars = allCars.filter(car => 
-            car.bodyType?.toLowerCase() === activeBodyType.toLowerCase()
-          );
+        const elapsed = Date.now() - startTime;
+        if (fetchedCars.length === 0) {
+          if (elapsed < 500) {
+            await new Promise((resolve) => setTimeout(resolve, 500 - elapsed));
+          }
+        } else if (elapsed < 300) {
+          await new Promise((resolve) => setTimeout(resolve, 300 - elapsed));
         }
         
-        setCars(filteredCars);
+        setCars(fetchedCars);
       } catch (error) {
         console.error('Error fetching cars:', error);
         setCars([]);
@@ -96,17 +101,10 @@ export default function ExploreByBodyType() {
     fetchCarsByBodyType();
   }, [activeBodyType]);
 
-  // Get displayed cars - always show 4 if available, fallback to all
-  const filteredByType = (cars || []).filter(
-    (car) => car?.bodyType?.toLowerCase() === activeBodyType.toLowerCase()
-  );
-  
-  const displayedCars = 
-    filteredByType.length >= 4
-      ? filteredByType.slice(0, 4)
-      : cars.slice(0, 4);
+  const displayedCars = (cars || [])
+    .filter((car) => car?.bodyType?.toLowerCase() === activeBodyType.toLowerCase())
+    .slice(0, 4);
 
-  // Handle wishlist toggle
   const handleWishlist = (car) => {
     if (wishlist.find((w) => w._id === car._id)) {
       removeFromWishlist(car._id);
@@ -115,56 +113,61 @@ export default function ExploreByBodyType() {
     }
   };
 
-  const isInWishlist = (carId) => wishlist.some((w) => w._id === carId);1
+  const isInWishlist = (carId) => wishlist.some((w) => w._id === carId);
 
   const handleViewAll = () => {
     navigate(`/cars?bodyType=${activeBodyType}`);
   };
 
   return (
-    <section className="bg-gradient-to-b from-white via-gray-50 to-white py-20 px-6">
-      <div className="w-full max-w-[1200px] mx-auto">
+    <section className="bg-[#F8FAFC] py-14 px-6 relative overflow-hidden">
+      {/* Decorative Blur Orbs */}
+      <div className="absolute top-1/2 left-[-10%] w-[450px] h-[450px] bg-purple-100/30 rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="absolute top-10 right-[-10%] w-[400px] h-[400px] bg-indigo-100/20 rounded-full blur-[100px] pointer-events-none z-0" />
+
+      <div className="w-full max-w-7xl mx-auto px-4 relative z-10">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-6"
         >
-          <p className="text-xs tracking-wider uppercase text-purple-600 font-semibold mb-4">
-            Smart Discovery
-          </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+          <span className="text-xs tracking-[0.18em] uppercase text-purple-600 font-bold mb-1.5 block">
+            Category Discovery
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-2 leading-tight">
             Explore by Body Type
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Find your perfect car by browsing through our carefully curated collection by body type
+          <p className="text-slate-500 max-w-xl mx-auto text-xs sm:text-sm font-medium leading-relaxed">
+            Filter through our curated fleet dynamically sorted by vehicular architecture.
           </p>
         </motion.div>
 
-        {/* Body Type Tabs */}
+        {/* Floating Category Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex justify-center mb-12 overflow-x-auto md:overflow-visible"
+          className="flex justify-start md:justify-center mb-6 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-purple-200/50"
         >
-          <div className="flex gap-3 bg-white/40 backdrop-blur-md p-2 rounded-2xl shadow-lg border border-purple-200/50 w-fit">
-            {bodyTypes.map((bodyType, idx) => {
+          <div className="flex gap-2.5 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/60 w-fit">
+            {bodyTypes.map((bodyType) => {
               const IconComponent = bodyType.icon;
               return (
                 <motion.button
                   key={bodyType.id}
                   onClick={() => setActiveBodyType(bodyType.id)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 min-w-fit ${
-                    activeBodyType === bodyType.id
-                      ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md'
-                      : 'text-purple-700 hover:bg-purple-100/50'
-                  }`}
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  className={`px-4 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 min-w-fit select-none ${activeBodyType === bodyType.id
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 border-transparent'
+                    : 'bg-white text-slate-700 hover:text-purple-600 border border-slate-100 hover:border-purple-200'
+                    }`}
                 >
-                  <IconComponent size={20} />
+                  <IconComponent size={15} className={activeBodyType === bodyType.id ? 'text-white' : 'text-purple-500'} />
                   {bodyType.label}
                 </motion.button>
               );
@@ -172,123 +175,96 @@ export default function ExploreByBodyType() {
           </div>
         </motion.div>
 
-        {/* Cars Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
-            {[...Array(4)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-gray-200 rounded-xl h-64 animate-pulse"
-              />
-            ))}
-          </div>
-        ) : displayedCars && displayedCars.length > 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.5, staggerChildren: 0.1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10"
-          >
-            <AnimatePresence>
-              {displayedCars.map((car, idx) => (
-                <motion.div
-                  key={car._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3, delay: idx * 0.05 }}
-                  whileHover={{ scale: 1.03 }}
-                  className="group"
-                >
-                  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden h-full flex flex-col">
-                    {/* Image Container */}
-                    <div className="relative h-40 w-full overflow-hidden bg-gray-200">
-                      <motion.img
-                        src={car.images?.[0] || 'https://via.placeholder.com/400x300?text=Car'}
-                        alt={`${car.brand} ${car.model}`}
-                        whileHover={{ scale: 1.08 }}
-                        transition={{ duration: 0.3 }}
-                        className="w-full h-full object-cover"
-                      />
-                      {/* Wishlist Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleWishlist(car)}
-                        className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 ${
-                          isInWishlist(car._id)
-                            ? 'bg-red-500 text-white'
-                            : 'bg-black/30 text-white hover:bg-black/50'
-                        }`}
-                      >
-                        <svg className="w-5 h-5" fill={isInWishlist(car._id) ? 'currentColor' : 'none'} stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                      </motion.button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4 flex flex-col flex-grow">
-                      <h3 className="text-sm font-bold text-gray-900 mb-2 line-clamp-2">
-                        {formatText(`${car.brand} ${car.model}`)}
-                      </h3>
-                      <p className="text-lg font-bold text-purple-600 mb-3">
-                        {formatPriceCompact(car.price)}
-                      </p>
-
-                      {/* Specs Row */}
-                      <div className="flex items-center justify-between text-xs text-gray-500 mb-3 pt-3 border-t border-gray-200">
-                        <div className="text-center flex-1">
-                          <p className="text-gray-400 mb-1">KMS</p>
-                          <p className="font-semibold text-gray-900">{(car.kmsDriven / 1000).toFixed(0)}k</p>
-                        </div>
-                        <div className="text-center flex-1 border-l border-gray-200">
-                          <p className="text-gray-400 mb-1">Year</p>
-                          <p className="font-semibold text-gray-900">{car.year}</p>
-                        </div>
-                        <div className="text-center flex-1 border-l border-gray-200">
-                          <p className="text-gray-400 mb-1">Type</p>
-                          <p className="font-semibold text-gray-900 capitalize">{car.bodyType || 'N/A'}</p>
-                        </div>
-                      </div>
-
-                      {/* CTA */}
-                      <a
-                        href={`/cars/${car._id}`}
-                        className="w-full mt-3 px-3 py-2 bg-purple-50 text-purple-600 border border-purple-600 rounded-lg font-semibold text-sm hover:bg-purple-100 transition-all duration-300 text-center block hover:scale-105 transform"
-                      >
-                        View Details
-                      </a>
-                    </div>
-                  </div>
-                </motion.div>
+        {/* Cars Grid inside a Luxury Rounded Container */}
+        <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-3 sm:p-4 shadow-lg shadow-gray-200/20 mb-6">
+          {loading ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[260px] sm:min-w-[280px] md:min-w-[290px] flex-shrink-0">
+                  <SkeletonCarCard />
+                </div>
               ))}
-            </AnimatePresence>
-          </motion.div>
-        ) : (
-          <div className="text-center py-12 mb-10">
-            <p className="text-gray-500 font-semibold">No cars available for {activeBodyType}</p>
-          </div>
-        )}
+            </div>
+          ) : displayedCars && displayedCars.length > 0 ? (
+            <div className="relative group">
+              {/* Prev Button */}
+              <button
+                onClick={() => scrollBody("left")}
+                className="absolute -left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 bg-white/95 text-gray-800 rounded-full shadow-xl border border-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-purple-600 hover:text-white focus:outline-none hidden md:flex hover:scale-110"
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              {/* Scroll Container */}
+              <motion.div
+                ref={bodyScrollRef}
+                layout
+                className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 pt-1 scrollbar-none"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                <AnimatePresence mode="popLayout">
+                  {displayedCars.map((car) => (
+                    <motion.div
+                      key={car._id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      className="min-w-[260px] sm:min-w-[280px] md:min-w-[295px] max-w-[300px] flex-shrink-0 snap-start h-full"
+                    >
+                      <CarCard
+                        car={car}
+                        onWishlist={handleWishlist}
+                        isInWishlist={isInWishlist(car._id)}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Next Button */}
+              <button
+                onClick={() => scrollBody("right")}
+                className="absolute -right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 bg-white/95 text-gray-800 rounded-full shadow-xl border border-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-purple-600 hover:text-white focus:outline-none hidden md:flex hover:scale-110"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-10">
+              <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Car size={26} />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 mb-1">No {formatText(activeBodyType)}s Available</h3>
+              <p className="text-slate-500 text-xs sm:text-xs max-w-md mx-auto leading-relaxed">We couldn't find any vehicles matching this body type currently in stock. Check back soon or browse our full collection.</p>
+            </div>
+          )}
+        </div>
 
         {/* View All Button */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
           className="flex justify-center"
         >
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleViewAll}
-            className="px-8 py-3 border-2 border-purple-600 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-all duration-300 capitalize"
+            className="px-7 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm rounded-xl tracking-wide transition-all duration-200 shadow-md shadow-purple-500/20 capitalize"
           >
-            View all {activeBodyType}s
+            Explore all {activeBodyType}s
           </motion.button>
         </motion.div>
+      </div>
+
+      {/* Visual Separator Transition: Curved Bottom Border into white */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20 pointer-events-none">
+        <svg className="relative block w-full h-[60px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,0 C400,90 800,0 1200,90 L1200,120 L0,120 Z" fill="#FFFFFF"></path>
+        </svg>
       </div>
     </section>
   );

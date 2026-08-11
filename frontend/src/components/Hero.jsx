@@ -3,13 +3,13 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-export default function Hero() {
-  const images = [
-    '/hero1.png',
-    '/hero2.png',
-    '/hero3.png',
-  ];
+const images = [
+  '/hero1.png',
+  '/hero2.png',
+  '/hero3.png',
+];
 
+export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Auto-slide every 6 seconds
@@ -30,53 +30,59 @@ export default function Hero() {
   };
 
   return (
-    <div className="relative w-full h-[85vh] overflow-hidden">
+    <div className="relative w-full h-[65vh] sm:h-[75vh] lg:h-[85vh] xl:h-[90vh] overflow-hidden">
       {/* Background Image with transition */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         {images.map((img, idx) => (
           <img
             key={idx}
             src={img}
             alt={`Hero slide ${idx + 1}`}
-            className={`absolute w-full h-full object-cover transition-all duration-1000 transform scale-105 ${
-              idx === currentIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
-            }`}
+            className={`absolute w-full h-full object-cover transition-all duration-1000 transform scale-105 ${idx === currentIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
+              }`}
           />
         ))}
       </div>
 
-      {/* Modern Overlay */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-r from-gray-950/80 via-gray-950/40 to-transparent z-10"
+      {/* Modern Deep Dark Overlay (#0F172A) */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-[#0F172A]/90 via-[#0F172A]/50 to-[#0F172A]/95 z-10"
       ></div>
 
       {/* Content */}
-      <div className="absolute inset-0 flex items-center px-6 md:px-20 lg:px-32 z-20">
-        <div className="max-w-2xl text-white">
+      <div className="absolute inset-0 flex items-center px-4 sm:px-12 md:px-20 lg:px-32 z-20">
+        <div className="max-w-3xl w-full text-center lg:text-left mx-auto lg:mx-0">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="flex flex-col items-center lg:items-start"
           >
-            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9]">
-              DRIVE THE <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">ELITE</span>
+            <span className="text-[10px] sm:text-xs font-bold tracking-[0.25em] uppercase text-purple-400 mb-3 sm:mb-4 block">
+              Purity • Performance • Luxury
+            </span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.0] sm:leading-[0.9] text-white">
+              DRIVE THE <br className="hidden sm:inline" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400">
+                ELITE
+              </span>
             </h1>
 
-            <p className="mt-8 text-xl md:text-2xl text-gray-200 font-medium max-w-lg leading-relaxed">
-              India's premier destination for certified luxury and performance vehicles.
+            <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-gray-300 font-normal max-w-md md:max-w-lg leading-relaxed">
+              India's premier destination for certified luxury and performance vehicles. Curated by experts, tailored for your desires.
             </p>
 
-            <div className="mt-12 flex flex-col sm:flex-row gap-6">
+            {/* Quick Action CTAs */}
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center w-full sm:w-auto">
               <Link
                 to="/cars"
-                className="inline-flex items-center justify-center bg-purple-600 hover:bg-purple-700 px-10 py-4 rounded-2xl text-white font-black text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_40px_rgba(147,51,234,0.4)]"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-purple-600/30 text-center hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                Browse Inventory
+                Browse Collection
               </Link>
               <Link
                 to="/sell"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 px-10 py-4 rounded-2xl text-white font-black text-lg transition-all duration-300 transform hover:scale-105 backdrop-blur-xl"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-white/10 text-white text-xs sm:text-sm font-bold border border-white/20 rounded-xl text-center hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Sell Your Car
               </Link>
@@ -85,44 +91,41 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Left Arrow */}
+      {/* Left Arrow (Hidden on Mobile) */}
       <button
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 p-3 rounded-full transition-all duration-300 z-20 group"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/5 hover:bg-white/15 border border-white/10 p-3 rounded-full transition-all duration-300 z-20 group hidden md:block"
         aria-label="Previous slide"
       >
         <ChevronLeft size={24} className="text-white group-hover:scale-110 transition-transform" />
       </button>
 
-      {/* Right Arrow */}
+      {/* Right Arrow (Hidden on Mobile) */}
       <button
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 p-3 rounded-full transition-all duration-300 z-20 group"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/5 hover:bg-white/15 border border-white/10 p-3 rounded-full transition-all duration-300 z-20 group hidden md:block"
         aria-label="Next slide"
       >
         <ChevronRight size={24} className="text-white group-hover:scale-110 transition-transform" />
       </button>
 
       {/* Dots Navigation */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 z-20">
         {images.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              idx === currentIndex
-                ? 'bg-white w-8'
-                : 'bg-white/50 hover:bg-white/75'
-            }`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex
+              ? 'bg-purple-500 w-6 sm:w-8'
+              : 'bg-white/30 hover:bg-white/60 w-1.5'
+              }`}
             aria-label={`Go to slide ${idx + 1}`}
           />
         ))}
       </div>
 
-      {/* Reduced Blend Gradient */}
-      <div className="absolute bottom-0 left-0 w-full h-24 z-20" style={{
-        background: 'linear-gradient(to top, rgba(255,255,255,0.3), transparent)'
-      }}></div>
+      {/* Subtle Bottom Transition */}
+      <div className="absolute bottom-0 left-0 w-full h-12 z-20 pointer-events-none bg-gradient-to-t from-white to-transparent"></div>
     </div>
   );
 }

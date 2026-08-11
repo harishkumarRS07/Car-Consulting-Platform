@@ -40,6 +40,8 @@ const filterReducer = (state, action) => {
       return { ...state, category: action.payload, page: 1 };
     case 'SET_PAGE':
       return { ...state, page: action.payload };
+    case 'SET_ALL_FILTERS':
+      return { ...state, ...action.payload };
     case 'RESET':
       return initialState;
     default:
@@ -62,6 +64,7 @@ export const useFilterReducer = () => {
   const setLocation = useCallback((location) => dispatch({ type: 'SET_LOCATION', payload: location }), []);
   const setCategory = useCallback((category) => dispatch({ type: 'SET_CATEGORY', payload: category }), []);
   const setPage = useCallback((page) => dispatch({ type: 'SET_PAGE', payload: page }), []);
+  const setAllFilters = useCallback((allFilters) => dispatch({ type: 'SET_ALL_FILTERS', payload: allFilters }), []);
   const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
 
   // Build query params
@@ -98,6 +101,7 @@ export const useFilterReducer = () => {
     setLocation,
     setCategory,
     setPage,
+    setAllFilters,
     reset,
   };
 };

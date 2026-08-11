@@ -15,6 +15,31 @@ export default function Wishlist() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
+  // Get unique brands from wishlist
+  const brands = useMemo(() => {
+    return [...new Set(wishlist.map((car) => car.brand))].sort();
+  }, [wishlist]);
+
+  // Filter and sort cars
+  const filteredCars = useMemo(() => {
+    let filtered = wishlist;
+
+    if (filterBrand) {
+      filtered = filtered.filter((car) => car.brand === filterBrand);
+    }
+
+    // Sort
+    if (sortBy === 'price-low') {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-high') {
+      filtered.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'year') {
+      filtered.sort((a, b) => b.year - a.year);
+    }
+
+    return filtered;
+  }, [wishlist, filterBrand, sortBy]);
+
   // Show authentication gate if not logged in
   if (!user) {
     return (
@@ -111,31 +136,6 @@ export default function Wishlist() {
       </div>
     );
   }
-
-  // Get unique brands from wishlist
-  const brands = useMemo(() => {
-    return [...new Set(wishlist.map((car) => car.brand))].sort();
-  }, [wishlist]);
-
-  // Filter and sort cars
-  const filteredCars = useMemo(() => {
-    let filtered = wishlist;
-
-    if (filterBrand) {
-      filtered = filtered.filter((car) => car.brand === filterBrand);
-    }
-
-    // Sort
-    if (sortBy === 'price-low') {
-      filtered.sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-high') {
-      filtered.sort((a, b) => b.price - a.price);
-    } else if (sortBy === 'year') {
-      filtered.sort((a, b) => b.year - a.year);
-    }
-
-    return filtered;
-  }, [wishlist, filterBrand, sortBy]);
 
   const containerVariants = {
     hidden: { opacity: 0 },

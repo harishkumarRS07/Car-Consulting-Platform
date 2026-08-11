@@ -17,6 +17,10 @@ const carSchema = new mongoose.Schema(
       required: [true, 'Model is required'],
       lowercase: true,
     },
+    variant: {
+      type: String,
+      trim: true,
+    },
     price: {
       type: Number,
       required: [true, 'Price is required'],
@@ -43,6 +47,8 @@ const carSchema = new mongoose.Schema(
       type: String,
       enum: ['sedan', 'suv', 'hatchback', 'muv', 'coupe', 'convertible', 'sports'],
       required: [true, 'Body type is required'],
+      lowercase: true,
+      trim: true,
     },
     color: {
       type: String,

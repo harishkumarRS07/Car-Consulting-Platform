@@ -1,116 +1,182 @@
-import { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, MapPin, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { formatPriceCompact } from '../utils/priceFormatter';
 
+// Helper to capitalize words
+const capitalize = (str) => {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export default function CarCard({ car, onWishlist, isInWishlist }) {
-  const [isHovered, setIsHovered] = useState(false);
+  const year = car.year || '';
+  const brand = car.brand ? capitalize(car.brand) : '';
+  const model = car.model ? capitalize(car.model) : '';
+  const fullTitle = `${year} ${brand} ${model}`.trim() || car.title || 'Car Details';
+
+  const variantText = car.variant 
+    ? capitalize(car.variant) 
+    : `${capitalize(car.color || 'Standard')} • ${car.owner || '1st'} Owner`;
+
+  // Filter tags for responsiveness (hide RTO or make compact on mobile)
+  const tags = [
+    car.kmsDriven ? `${(car.kmsDriven / 1000).toFixed(0)}k km` : null,
+    car.fuelType ? capitalize(car.fuelType) : null,
+    car.transmission ? capitalize(car.transmission) : null,
+    car.rto ? car.rto.toUpperCase() : null,
+  ].filter(Boolean);
+
+  const getTagline = () => {
+    if (car.category === 'luxury') return 'Premium Luxury Selection';
+    if (car.category === 'assured') return '150-Point Checked';
+    if (car.availability === 'in-stock') return 'Ready for Immediate Delivery';
+    return '1-Year Engine Warranty';
+  };
+
+  const defaultImg = 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      whileHover={{ y: -4 }}
-      className="relative rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.12)] transition-shadow duration-300 group cursor-pointer w-full flex flex-col overflow-hidden"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 25 }}
+      className="relative rounded-2xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-300 flex flex-col h-full group"
     >
-      {/* Image Container - Compact with Gradient Background */}
-      <div className="relative h-[160px] w-full overflow-hidden bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50">
+      {/* Top Section (Image & Badges) */}
+      <div className="relative w-full h-[140px] sm:h-[160px] md:h-[175px] bg-gray-50 overflow-hidden select-none">
         <img
-          src={car.images?.[0] || 'https://via.placeholder.com/400x300?text=Car'}
-          alt={car.title}
-          className="w-full h-full object-cover"
+          src={car.images?.[0] || defaultImg}
+          alt={fullTitle}
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        
-        {/* Wishlist Button */}
-        <button
+        {/* Soft Vignette Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+
+        {/* Body Type Badge */}
+        {car.bodyType && (
+          <span className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider bg-white/90 backdrop-blur-md text-gray-900 shadow-sm z-10 border border-white/40">
+            {capitalize(car.bodyType)}
+          </span>
+        )}
+
+        {/* Availability Badge */}
+        {car.availability && car.availability !== 'in-stock' && (
+          <span className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm z-10 ${
+            car.availability === 'booked' ? 'bg-red-500' : 'bg-amber-500'
+          }`}>
+            {car.availability}
+          </span>
+        )}
+
+        {/* Wishlist Heart Button */}
+        <motion.button
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.9 }}
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
-            onWishlist(car);
+            if (onWishlist) onWishlist(car);
           }}
-          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
-            isInWishlist 
-              ? 'bg-red-500 text-white shadow-md' 
-              : 'bg-white text-gray-700 shadow-sm hover:bg-gray-50'
+          aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+          className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md border transition-all duration-200 z-10 ${
+            isInWishlist
+              ? 'bg-red-500 text-white border-red-400'
+              : 'bg-white/80 text-gray-700 hover:bg-white border-white/60'
           }`}
         >
-          <Heart size={18} fill={isInWishlist ? 'currentColor' : 'none'} />
-        </button>
+          <Heart
+            size={13}
+            className={isInWishlist ? 'fill-white stroke-white' : 'stroke-gray-800'}
+            strokeWidth={2.2}
+          />
+        </motion.button>
 
-        {/* Stock Badge */}
-        {car.availability === 'in-stock' && (
-          <div className="absolute top-3 left-3 bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-xs font-semibold shadow-md z-10">
-            In Stock
-          </div>
-        )}
-
-        {/* Booked/Upcoming Badge */}
-        {car.availability && car.availability !== 'in-stock' && (
-          <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold shadow-md z-10 ${
-            car.availability === 'booked' ? 'bg-red-500' : 'bg-amber-500'
-          } text-white`}>
-            {car.availability === 'booked' ? 'Booked' : 'Upcoming'}
-          </div>
-        )}
+        {/* Bottom Image Model Year Tag */}
+        <div className="absolute bottom-2 left-2 right-2 sm:bottom-2.5 sm:left-2.5 sm:right-2.5 flex justify-between items-end z-10">
+          {car.year && (
+            <span className="px-1.5 py-0.5 rounded text-[8px] sm:text-[10px] font-bold bg-black/50 backdrop-blur-md text-white/90">
+              {car.year} Model
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Content Section */}
-      <div className="p-4 flex flex-col flex-grow">
-        {/* Car Title */}
-        <Link to={`/cars/${car._id}`} className="block mb-2">
-          <h3 className="text-sm font-bold text-gray-900 line-clamp-1 leading-snug">
-            {car.title}
-          </h3>
-        </Link>
-
-        {/* Price - Large and Bold */}
-        <div className="mb-3">
-          <p className="text-lg font-black text-gray-900 leading-none">
-            {formatPriceCompact(car.price)}
-          </p>
-        </div>
-
-        {/* Metadata Chips */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {/* Fuel Type Chip */}
-          <span className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-md border border-blue-100">
-            {car.fuelType}
-          </span>
-
-          {/* Transmission Chip */}
-          <span className="inline-flex items-center px-2 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded-md border border-purple-100">
-            {car.transmission}
-          </span>
-
-          {/* Year Chip */}
-          <span className="inline-flex items-center px-2 py-1 bg-gray-50 text-gray-700 text-xs font-semibold rounded-md border border-gray-200">
-            {car.year}
-          </span>
-        </div>
-
-        {/* Quick Specs Row */}
-        <div className="flex items-center gap-3 mb-3 py-2.5 border-t border-b border-gray-100 text-xs text-gray-600">
-          <div className="flex-1 text-center">
-            <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-wide mb-0.5">KMS</p>
-            <p className="font-bold text-gray-900">{(car.kmsDriven / 1000).toFixed(0)}k</p>
+      <div className="p-3 sm:p-3.5 flex flex-col flex-grow justify-between bg-white">
+        <div className="space-y-1.5 sm:space-y-2">
+          {/* Header & Title */}
+          <div>
+            <div className="flex justify-between items-start gap-2 mb-0.5">
+              <Link to={`/cars/${car._id}`} className="block flex-1 min-w-0 group-hover:text-purple-600 transition-colors">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate leading-snug tracking-tight">
+                  {fullTitle}
+                </h3>
+              </Link>
+            </div>
+            <p className="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate leading-normal">
+              {variantText}
+            </p>
           </div>
-          <div className="h-6 w-px bg-gray-200"></div>
-          <div className="flex-1 text-center">
-            <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-wide mb-0.5">Location</p>
-            <p className="font-bold text-gray-900 text-xs line-clamp-1">{car.location || 'N/A'}</p>
+
+          {/* Price Display */}
+          <div className="flex items-baseline flex-wrap gap-x-1.5 gap-y-0.5">
+            <span className="text-sm sm:text-base font-extrabold text-purple-700 tracking-tight">
+              {formatPriceCompact(car.price)}
+            </span>
+            {car.price && car.price > 500000 && (
+              <span className="text-[8px] sm:text-[10px] font-medium text-slate-400 whitespace-nowrap">
+                (EMI from ₹{(Math.round(car.price * 0.018)).toLocaleString()}/mo)
+              </span>
+            )}
+          </div>
+
+          {/* Specs Pills (Compact on Mobile) */}
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {tags.map((tag, idx) => (
+              <span
+                key={idx}
+                className={`px-1.5 py-0.5 text-[9px] sm:px-2 sm:py-0.5 sm:text-[10px] font-semibold bg-slate-100/90 text-slate-650 rounded-md tracking-tight select-none ${
+                  idx === 3 ? 'hidden sm:inline-block' : 'inline-block' // Hide 4th tag (RTO) on mobile to prevent overflow wrap
+                }`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Location */}
+          <div className="flex items-center gap-1 text-slate-400 pt-0.5">
+            <MapPin size={11} className="text-purple-500 flex-shrink-0" />
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 truncate">
+              {car.location || 'Location Available'}
+            </span>
           </div>
         </div>
 
-        {/* View Details Button */}
-        <Link
-          to={`/cars/${car._id}`}
-          className="w-full py-2.5 px-3 bg-purple-900 text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-colors duration-200 text-center active:scale-95"
-        >
-          View Details
-        </Link>
+        {/* Action Button - 48px min touch target on mobile via padding */}
+        <div className="pt-2 mt-1.5">
+          <Link
+            to={`/cars/${car._id}`}
+            className="flex items-center justify-center gap-1.5 w-full py-2.5 sm:py-2 px-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm shadow-purple-500/10 hover:shadow-md transition-all duration-200 group/btn min-h-[38px] sm:min-h-0"
+          >
+            <span>View Details</span>
+            <ArrowRight size={12} className="group-hover/btn:translate-x-1 transition-transform duration-200" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Assured Banner Footer */}
+      <div className="w-full bg-slate-50/80 border-t border-slate-100 px-3 py-1.5 sm:px-3.5 sm:py-1.5 flex items-center justify-between gap-2 text-[9px] sm:text-[10px] text-slate-500 select-none mt-auto">
+        <span className="font-medium text-slate-600 truncate">{getTagline()}</span>
+        <div className="flex items-center gap-1 text-purple-700 font-semibold flex-shrink-0">
+          <ShieldCheck size={12} className="text-purple-600" />
+          <span>Assured</span>
+        </div>
       </div>
     </motion.div>
   );

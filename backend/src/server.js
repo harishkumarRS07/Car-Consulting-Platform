@@ -9,6 +9,8 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import carRoutes from './routes/carRoutes.js';
 import sellRoutes from './routes/sellRoutes.js';
+import testimonialRoutes from './routes/testimonialRoutes.js';
+import { getActiveBrands } from './controllers/sellController.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -80,13 +82,15 @@ app.get('/health', (req, res) => {
 });
 
 // ===== API ROUTES =====
+app.get('/api/brands', getActiveBrands); // Alias for sell brands list
 app.use('/api/auth', authLimiter, authRoutes); // Stricter limiting for auth
 app.use('/api/cars', carRoutes);
 app.use('/api/sell', sellRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 
 // ===== ERROR HANDLING MIDDLEWARE =====
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   const statusCode = err.statusCode || err.status || 500;
   const message = err.message || 'Internal Server Error';
   
@@ -100,8 +104,8 @@ app.use((err, req, res, next) => {
 
   res.status(statusCode).json({
     success: false,
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Server error' // Don't expose details in production
+    message: (process.env.NODE_ENV === 'production' && !err.isOperational)
+      ? 'Server error' // Don't expose internal details in production
       : message,
     ...(process.env.NODE_ENV === 'development' && { error: err.stack }),
   });

@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Email is required'],
       unique: true,
       lowercase: true,
-      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email'],
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email'],
     },
     password: {
       type: String,
@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema(
         ref: 'Car',
       },
     ],
+    notificationSettings: {
+      newListings: { type: Boolean, default: true },
+      priceDrops: { type: Boolean, default: true },
+      schedules: { type: Boolean, default: false },
+      digest: { type: Boolean, default: true },
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -62,7 +68,7 @@ userSchema.pre('save', async function (next) {
 
 // Method to compare password
 userSchema.methods.comparePassword = async function (passwordInput) {
-  return await bcrypt.compare(passwordInput, this.password);
+  return bcrypt.compare(passwordInput, this.password);
 };
 
 export default mongoose.model('User', userSchema);

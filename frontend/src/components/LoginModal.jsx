@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 import { authAPI } from "../services/api";
 import { useAuthStore } from "../context/store";
+import LoadingSpinner from "./LoadingSpinner";
 
 export default function LoginModal({ isOpen, onClose, onSuccess, onSwitchToSignup }) {
   const [email, setEmail] = useState("");
@@ -35,14 +36,14 @@ export default function LoginModal({ isOpen, onClose, onSuccess, onSwitchToSignu
       setSuccess(true);
       setToken(response.data.token);
       setUser(response.data.user);
-      
+
       // Show success message then close
       setTimeout(() => {
         // Reset form
         setEmail("");
         setPassword("");
         setSuccess(false);
-        
+
         // Close modal and call success callback
         onClose();
         onSuccess?.();
@@ -64,134 +65,133 @@ export default function LoginModal({ isOpen, onClose, onSuccess, onSwitchToSignu
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/55 backdrop-blur-sm z-40"
           />
 
-          {/* Modal - Positioned below navbar */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
-          >
-              {/* Card */}
-              <div className="backdrop-blur-md bg-white/95 rounded-2xl p-8 shadow-2xl">
-                {/* Close Button */}
-                <button
-                  onClick={onClose}
-                  className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X size={20} className="text-gray-600" />
-                </button>
+          {/* Modal Centering Wrapper */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto w-full pointer-events-none select-none font-sans">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative w-full max-w-[420px] max-h-[90vh] overflow-y-auto bg-white border border-purple-100 rounded-[32px] p-6 sm:p-8 shadow-2xl pointer-events-auto my-auto focus:outline-none scrollbar-thin text-purple-955"
+            >
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 p-2 hover:bg-purple-50 rounded-xl transition-colors text-purple-400 hover:text-purple-650"
+              >
+                <X size={18} />
+              </button>
 
-                {/* Header */}
-                <div className="text-center mb-6">
-                  <div className="inline-block mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
-                      🔐
-                    </div>
+              {/* Header */}
+              <div className="text-center mb-6">
+                <div className="inline-block mb-3">
+                  <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-2xl shadow-lg border border-purple-100">
+                    🔓
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome Back</h2>
-                  <p className="text-gray-600 text-sm">Sign in to your account to continue</p>
                 </div>
-
-                {/* Form */}
-                <form onSubmit={handleLogin} className="space-y-3">
-                  {/* Email Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <div className="relative">
-                      <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        required
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Password Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        required
-                        className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Error Message */}
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 text-red-700 text-sm"
-                    >
-                      <AlertCircle size={16} />
-                      {error}
-                    </motion.div>
-                  )}
-
-                  {/* Success Message */}
-                  {success && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2 text-green-700 text-sm"
-                    >
-                      <CheckCircle size={16} />
-                      Login successful!
-                    </motion.div>
-                  )}
-
-                  {/* Submit Button */}
-                  <motion.button
-                    type="submit"
-                    disabled={loading || success}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg hover:shadow-xl"
-                  >
-                    {loading ? "Signing in..." : "Sign In"}
-                  </motion.button>
-                </form>
-
-                {/* Divider */}
-                <div className="flex items-center gap-3 my-4">
-                  <div className="flex-1 h-px bg-gray-300"></div>
-                  <span className="text-gray-500 text-xs">OR</span>
-                  <div className="flex-1 h-px bg-gray-300"></div>
-                </div>
-
-                {/* Switch to Signup */}
-                <p className="text-center text-gray-600 text-sm">
-                  Don't have an account?{' '}
-                  <button
-                    onClick={onSwitchToSignup}
-                    className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
-                  >
-                    Sign up now
-                  </button>
-                </p>
+                <h2 className="text-2xl font-black text-purple-955 mb-1 tracking-tight">Welcome Back</h2>
+                <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">Sign in to continue</p>
               </div>
+
+              {/* Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                {/* Email Field */}
+                <div>
+                  <label className="block text-sm font-bold text-purple-800 mb-2">Email Address</label>
+                  <div className="relative">
+                    <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      className="w-full pl-12 pr-4 py-3 bg-purple-55/40 border border-purple-100 rounded-xl text-purple-950 placeholder-purple-300 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100/70 transition-all font-semibold"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div>
+                  <label className="block text-sm font-bold text-purple-800 mb-2">Password</label>
+                  <div className="relative">
+                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="w-full pl-12 pr-12 py-3 bg-purple-55/40 border border-purple-100 rounded-xl text-purple-955 placeholder-purple-300 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100/70 transition-all font-semibold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-650 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-red-50 border border-red-200 rounded-xl p-3.5 flex items-center gap-2 text-red-650 text-sm font-semibold"
+                  >
+                    <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
+                    {error}
+                  </motion.div>
+                )}
+
+                {/* Success Message */}
+                {success && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-green-50 border border-green-205 rounded-xl p-3.5 flex items-center gap-2 text-green-650 text-sm font-semibold"
+                  >
+                    <CheckCircle size={16} className="text-green-600 flex-shrink-0" />
+                    Login successful!
+                  </motion.div>
+                )}
+
+                {/* Submit Button */}
+                <motion.button
+                  type="submit"
+                  disabled={loading || success}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-3.5 rounded-full shadow border border-transparent transition-all duration-300 flex justify-center items-center gap-2 text-sm"
+                >
+                  {loading ? <LoadingSpinner fullScreen={false} size="small" /> : "Sign In"}
+                </motion.button>
+              </form>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px bg-purple-100"></div>
+                <span className="text-purple-400 text-[10px] font-black tracking-widest uppercase">OR</span>
+                <div className="flex-1 h-px bg-purple-100"></div>
+              </div>
+
+              {/* Switch to Signup */}
+              <p className="text-center text-purple-700 text-sm font-semibold">
+                Don't have an account?{' '}
+                <button
+                  onClick={onSwitchToSignup}
+                  className="text-purple-600 hover:text-purple-800 font-extrabold transition-colors"
+                >
+                  Sign up now
+                </button>
+              </p>
             </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
