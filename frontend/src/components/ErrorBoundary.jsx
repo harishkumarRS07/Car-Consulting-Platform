@@ -55,7 +55,7 @@ class ErrorBoundary extends Component {
               Our team has been notified. Please try again later.
             </p>
 
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
                 <p className="text-xs font-mono text-red-600 break-all">
                   {this.state.error?.message}
