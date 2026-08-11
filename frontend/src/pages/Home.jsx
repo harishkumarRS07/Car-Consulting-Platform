@@ -64,9 +64,8 @@ function AnimatedCounter({ value }) {
 }
 
 export default function Home() {
-  const [featuredCars, setFeaturedCars] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [newArrivalsLoading, setNewArrivalsLoading] = useState(true);
   const { addToWishlist, removeFromWishlist, wishlist } = useCarsStore();
 
   const arrivalsScrollRef = useRef(null);
@@ -175,28 +174,36 @@ export default function Home() {
     });
   }, []);
 
-  // API parallelized data retrieval
+  // Fetch New Arrivals independently
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchNewArrivals = async () => {
       try {
-        const [featuredRes, newArrivalsRes, testimonialsRes] = await Promise.all([
-          carsAPI.getFeaturedCars(),
-          carsAPI.getNewArrivals(),
-          testimonialsAPI.getTestimonialsPublic()
-        ]);
-        setFeaturedCars(featuredRes.data.cars || []);
-        setNewArrivals(newArrivalsRes.data.cars || []);
-        setTestimonials(testimonialsRes.data.testimonials || []);
+        const res = await carsAPI.getNewArrivals();
+        setNewArrivals(res.data.cars || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        showErrorToast('Failed to load vehicles or testimonials. Please refresh.');
+        console.error('Error fetching new arrivals:', error);
       } finally {
-        setLoading(false);
+        setNewArrivalsLoading(false);
+      }
+    };
+
+    fetchNewArrivals();
+  }, []);
+
+  // Fetch Testimonials independently
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await testimonialsAPI.getTestimonialsPublic();
+        setTestimonials(res.data.testimonials || []);
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      } finally {
         setTestimonialsLoading(false);
       }
     };
 
-    fetchData();
+    fetchTestimonials();
   }, []);
 
   const handleWishlist = (car) => {
@@ -240,7 +247,7 @@ export default function Home() {
       <Hero />
 
       {/* 2. Featured Showcase Section (White Background) */}
-      <FeaturedCars cars={featuredCars} />
+      <FeaturedCars />
 
       {/* 3. Body Style Selection (Light Gray Background #F8FAFC) */}
       <ExploreByBodyType />
@@ -270,7 +277,7 @@ export default function Home() {
           </motion.div>
 
           {/* Responsive Grid */}
-          {loading ? (
+          {newArrivalsLoading ? (
             <div className="flex gap-6 overflow-x-auto pb-6 mb-16 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="min-w-[280px] sm:min-w-[320px] md:min-w-[340px]">

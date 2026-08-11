@@ -10,10 +10,11 @@ const apiClient = axios.create({
   },
 });
 
-// Add token to requests
+// Add token to requests & track active loading requests safely
 apiClient.interceptors.request.use((config) => {
   if (!config.skipLoader) {
     useLoadingStore.getState().startLoading();
+    config._loaderIncremented = true;
   }
   const token = localStorage.getItem('authToken');
   if (token) {
@@ -21,8 +22,9 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 }, error => {
-  if (error.config && !error.config.skipLoader) {
+  if (error?.config?._loaderIncremented) {
     useLoadingStore.getState().stopLoading();
+    error.config._loaderIncremented = false;
   }
   return Promise.reject(error);
 });
@@ -30,16 +32,18 @@ apiClient.interceptors.request.use((config) => {
 // Handle expired or invalid tokens globally and server/network errors
 apiClient.interceptors.response.use(
   (response) => {
-    if (!response.config?.skipLoader) {
+    if (response?.config?._loaderIncremented) {
       useLoadingStore.getState().stopLoading();
+      response.config._loaderIncremented = false;
     }
     return response;
   },
   (error) => {
-    if (error.config && !error.config.skipLoader) {
+    if (error?.config?._loaderIncremented) {
       useLoadingStore.getState().stopLoading();
+      error.config._loaderIncremented = false;
     }
-    if (error.response) {
+    if (error?.response) {
       if (error.response.status === 401) {
         // Clear authentication data and logout on 401 Unauthorized
         useAuthStore.getState().logout();

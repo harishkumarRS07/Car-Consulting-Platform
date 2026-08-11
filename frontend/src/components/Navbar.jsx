@@ -118,8 +118,17 @@ export default function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={handleSearch}
-                  className="w-full h-10 xl:h-12 bg-white/10 border border-white/20 rounded-xl px-12 text-sm text-white placeholder-purple-200/70 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-300"
+                  className="w-full h-10 xl:h-12 bg-white/10 border border-white/20 rounded-xl pl-11 pr-10 text-sm text-white placeholder-purple-200/70 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-300"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3.5 top-1/2 transform -translate-y-1/2 text-purple-200 hover:text-white transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
 
               {/* Desktop Links */}
