@@ -2,6 +2,7 @@ services:
   - type: web
     runtime: static
     name: car-consulting-frontend
+    rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
