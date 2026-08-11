@@ -47,7 +47,7 @@ Ensure your local backend server is up and running before executing the tests.
    ```bash
    npm run seed
    ```
-   *Note: This creates the default admin user `harishvicky07@gmail.com` with the password `123456`.*
+   *Note: This creates the admin user configured by `ADMIN_EMAIL` and `ADMIN_PASSWORD` in your `.env` file.*
 5. Start the backend server:
    ```bash
    npm run dev

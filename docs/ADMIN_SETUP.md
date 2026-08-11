@@ -15,8 +15,9 @@ npm run seed
 ```
 
 **2. Your Admin Credentials:**
-- Email: `harishvicky07@gmail.com`
-- Password: `123456`
+These are configured in your `backend/.env` file:
+- Email: `ADMIN_EMAIL` (default: `harishvicky07@gmail.com`)
+- Password: `ADMIN_PASSWORD` (default: `123456`)
 
 **3. Start Your Application:**
 ```bash

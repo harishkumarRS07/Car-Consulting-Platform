@@ -9,19 +9,24 @@ const seedData = async () => {
     console.log('✅ Connected to MongoDB');
 
     // Check if admin already exists
-    const existingAdmin = await User.findOne({ email: 'harishvicky07@gmail.com' });
+    const adminEmail = process.env.ADMIN_EMAIL || 'harishvicky07@gmail.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || '123456';
+
+    const existingAdmin = await User.findOne({ email: adminEmail });
     
     if (!existingAdmin) {
-      // Create admin user with your credentials
+      // Create admin user with credentials from environment
       const admin = new User({
-        email: 'harishvicky07@gmail.com',
-        password: '123456',
+        name: 'Admin User',
+        phone: '9999999999', // Provide a mock phone number to pass User model validation
+        email: adminEmail,
+        password: adminPassword,
         role: 'admin',
       });
       await admin.save();
-      console.log('✅ Admin user created: harishvicky07@gmail.com');
+      console.log(`✅ Admin user created: ${adminEmail}`);
     } else {
-      console.log('⚠️ Admin user already exists');
+      console.log(`⚠️ Admin user already exists (${adminEmail})`);
     }
 
     // Seed Testimonials
