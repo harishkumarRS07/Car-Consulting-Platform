@@ -8,7 +8,6 @@
     "frontend"
   ],
   "scripts": {
-    "install": "npm install --workspaces",
     "dev": "npm run dev --workspaces",
     "build": "npm run build --workspaces",
     "preview": "npm run preview --workspaces",
