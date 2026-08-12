@@ -44,10 +44,10 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
       const files = Array.from(e.target.files);
 
       files.forEach((file) => {
-        // Check file size (max 2MB per image for base64)
+        // Check file size (max 10MB per image)
         const fileSizeMB = file.size / (1024 * 1024);
-        if (fileSizeMB > 2) {
-          console.warn(`File ${file.name} is too large (${fileSizeMB.toFixed(2)}MB). Max 2MB allowed.`);
+        if (fileSizeMB > 10) {
+          setError(`File "${file.name}" is too large (${fileSizeMB.toFixed(2)}MB). Max 10MB per image allowed.`);
           return;
         }
 
@@ -56,7 +56,7 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
           setFormData((prev) => {
             // Prevent duplicates and limit to 20 images max
             if (prev.images.length >= 20) {
-              console.warn('Maximum 20 images allowed');
+              setError('Maximum 20 images allowed per car');
               return prev;
             }
             return {
@@ -66,14 +66,14 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
           });
         };
         reader.onerror = () => {
-          console.error(`Error reading file ${file.name}`);
+          setError(`Error reading file "${file.name}"`);
         };
         reader.readAsDataURL(file);
       });
     } else {
       setFormData({
         ...formData,
-        [name]: type === 'number' ? parseFloat(value) : value,
+        [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value,
       });
     }
   };
@@ -101,28 +101,38 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
       if (!formData.model?.trim()) {
         throw new Error('Model is required');
       }
-      if (!formData.price || formData.price <= 0) {
+      if (formData.price === '' || formData.price === null || isNaN(formData.price) || Number(formData.price) <= 0) {
         throw new Error('Valid price is required');
+      }
+      if (formData.kmsDriven === '' || formData.kmsDriven === null || isNaN(formData.kmsDriven) || Number(formData.kmsDriven) < 0) {
+        throw new Error('Valid KMs driven is required');
       }
       if (!formData.location?.trim()) {
         throw new Error('Location is required');
       }
 
-      // Validate images (optional but recommended)
+      // Validate images
       let validImages = [];
       if (formData.images && formData.images.length > 0) {
         validImages = formData.images.filter(img => {
           if (typeof img === 'string') {
-            // It's already a base64 string from upload or existing URL
             return img && img.length > 0;
           }
           return false;
         });
       }
 
-      // Prepare data with validated images
+      // Prepare sanitized payload with explicit numeric types
       const dataToSend = {
         ...formData,
+        title: formData.title.trim(),
+        brand: formData.brand.trim(),
+        model: formData.model.trim(),
+        price: Number(formData.price),
+        kmsDriven: Number(formData.kmsDriven),
+        year: Number(formData.year || new Date().getFullYear()),
+        seats: formData.seats ? Number(formData.seats) : 5,
+        location: formData.location.trim(),
         images: validImages.length > 0 ? validImages : formData.images || [],
       };
 
@@ -134,9 +144,16 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
       
       onSubmit();
     } catch (err) {
-      console.error('Error saving car:', err);
+      console.error('[Add/Edit Car Failure]', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.message,
+      });
+
+      const statusTag = err.response?.status ? `[Status ${err.response.status}] ` : '';
       const errorMessage = err.response?.data?.message || err.message || 'Error saving car. Please try again.';
-      setError(errorMessage);
+      setError(`${statusTag}${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -158,10 +175,9 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm space-y-2"
+          className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm space-y-1"
         >
           <p className="font-semibold">❌ Error: {error}</p>
-          <p className="text-xs text-red-500">Make sure all required fields are filled correctly.</p>
         </motion.div>
       )}
 

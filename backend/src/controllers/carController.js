@@ -1,6 +1,7 @@
 import Car from '../models/Car.js';
 import User from '../models/User.js';
 import AppError from '../utils/AppError.js';
+import { uploadToCloudinary } from '../utils/cloudinaryHelper.js';
 
 export const getCars = async (req, res, next) => {
   try {
@@ -156,7 +157,15 @@ export const getCarById = async (req, res, next) => {
 
 export const createCar = async (req, res, next) => {
   try {
-    const carData = req.body;
+    const carData = { ...req.body };
+
+    // Process base64 images through Cloudinary if present
+    if (carData.images && Array.isArray(carData.images)) {
+      const processedImages = await Promise.all(
+        carData.images.map((img) => uploadToCloudinary(img, 'car'))
+      );
+      carData.images = processedImages.filter(Boolean);
+    }
 
     const car = new Car(carData);
     await car.save();
@@ -172,7 +181,7 @@ export const createCar = async (req, res, next) => {
       const messages = Object.values(error.errors)
         .map(err => err.message)
         .join(', ');
-      return next(new AppError(`Validation error: ${  messages}`, 400));
+      return next(new AppError(`Validation error: ${messages}`, 400));
     }
 
     next(error);
@@ -186,7 +195,17 @@ export const updateCar = async (req, res, next) => {
       return next(new AppError('Car ID is required', 400));
     }
 
-    const car = await Car.findByIdAndUpdate(req.params.id, req.body, {
+    const updateData = { ...req.body };
+
+    // Process base64 images through Cloudinary if present
+    if (updateData.images && Array.isArray(updateData.images)) {
+      const processedImages = await Promise.all(
+        updateData.images.map((img) => uploadToCloudinary(img, 'car'))
+      );
+      updateData.images = processedImages.filter(Boolean);
+    }
+
+    const car = await Car.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });

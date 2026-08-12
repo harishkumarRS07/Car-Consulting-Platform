@@ -28,10 +28,24 @@ if (missingVars.length > 0) {
 // Helmet - Set security HTTP headers
 app.use(helmet());
 
-// CORS Configuration - Allow only specified origins
-const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173').split(',');
+// CORS Configuration - Allow specified origins & local network IPs in development
+const defaultOrigins = ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4173'];
+const configuredOrigins = (process.env.CORS_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+const corsOrigins = Array.from(new Set([...defaultOrigins, ...configuredOrigins]));
+
 app.use(cors({
-  origin: corsOrigins.map(origin => origin.trim()),
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile native app, curl, or same-origin)
+    if (!origin) return callback(null, true);
+    if (process.env.NODE_ENV !== 'production') {
+      // In development/staging, allow local IP & localhost connections
+      return callback(null, true);
+    }
+    if (corsOrigins.includes(origin) || corsOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS policy violation for origin: ${origin}`));
+  },
   credentials: true,
   optionsSuccessStatus: 200,
 }));
@@ -58,7 +72,7 @@ const authLimiter = rateLimit({
 
 // ===== REQUEST PARSING & COMPRESSION =====
 app.use(compression()); // Enable gzip compression
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ===== REQUEST LOGGING =====
@@ -91,9 +105,16 @@ app.use('/api/testimonials', testimonialRoutes);
 // ===== ERROR HANDLING MIDDLEWARE =====
 // Global error handler
 app.use((err, req, res, _next) => {
-  const statusCode = err.statusCode || err.status || 500;
-  const message = err.message || 'Internal Server Error';
+  let statusCode = err.statusCode || err.status || 500;
+  let message = err.message || 'Internal Server Error';
   
+  // Express body-parser PayloadTooLargeError (entity.too.large)
+  if (err.type === 'entity.too.large' || err.name === 'PayloadTooLargeError') {
+    statusCode = 413;
+    message = 'Payload too large. Please reduce image sizes or upload fewer images.';
+    err.isOperational = true;
+  }
+
   console.error(`[${new Date().toISOString()}] Error:`, {
     status: statusCode,
     message,
@@ -102,11 +123,14 @@ app.use((err, req, res, _next) => {
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 
+  // Preserve descriptive message for 4xx client errors (400, 401, 403, 404, 413, 422) or operational errors
+  const clientFacingMessage = (process.env.NODE_ENV === 'production' && !err.isOperational && statusCode >= 500)
+    ? 'Server error' // Only mask unhandled 500 internal server errors in production
+    : message;
+
   res.status(statusCode).json({
     success: false,
-    message: (process.env.NODE_ENV === 'production' && !err.isOperational)
-      ? 'Server error' // Don't expose internal details in production
-      : message,
+    message: clientFacingMessage,
     ...(process.env.NODE_ENV === 'development' && { error: err.stack }),
   });
 });
