@@ -105,6 +105,7 @@ export default function AdminSellRequests() {
     { id: 'listings', icon: FileText, label: 'My Listings' },
     { id: 'sell-requests', icon: ClipboardList, label: 'Scheduled Consulting' },
     { id: 'sold', icon: TrendingUp, label: 'Sold Vehicles' },
+    { id: 'testimonials', icon: MessageCircle, label: 'Testimonials' },
     { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 
@@ -283,7 +284,7 @@ export default function AdminSellRequests() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/55 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed top-16 sm:top-20 inset-x-0 bottom-0 bg-black/55 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -293,13 +294,13 @@ export default function AdminSellRequests() {
         initial={{ x: -300 }}
         animate={{ x: sidebarOpen || isDesktop ? 0 : -300 }}
         transition={{ type: 'tween', ease: 'easeInOut', duration: 0.3 }}
-        className="fixed lg:static top-0 left-0 w-[280px] z-50 bg-white border-r border-gray-200 overflow-y-auto overflow-x-hidden min-h-screen flex flex-col shadow-sm"
+        className="fixed lg:static top-16 sm:top-20 lg:top-0 left-0 w-[280px] z-40 lg:z-auto bg-white border-r border-gray-200 overflow-y-auto overflow-x-hidden h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] lg:h-auto lg:min-h-screen flex flex-col"
       >
-        <div className="p-6 flex flex-col flex-1">
+        <div className="p-6 flex flex-col">
           {/* Logo */}
           <div className="mb-8">
-            <h3 className="text-xs tracking-widest uppercase font-black text-purple-600 bg-purple-50 px-3 py-1.5 rounded-lg w-fit">
-              VCC Admin Panel
+            <h3 className="text-xs tracking-widest uppercase font-bold text-purple-600">
+              VCC Admin
             </h3>
           </div>
 
@@ -312,6 +313,24 @@ export default function AdminSellRequests() {
             }}
             sidebarOpen={true}
           />
+
+          {/* Concierge Support */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-auto pt-6 border-t border-gray-200"
+          >
+            <h4 className="text-xs tracking-widest uppercase text-gray-500 font-semibold mb-3">CONCIERGE SUPPORT</h4>
+            <p className="text-sm text-gray-600 mb-4">Need help with high-value transactions?</p>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-purple-100 hover:bg-purple-200 text-purple-600 border border-purple-300 rounded-xl py-2 text-sm font-semibold transition-all"
+            >
+              Contact Expert
+            </motion.button>
+          </motion.div>
         </div>
       </motion.div>
 

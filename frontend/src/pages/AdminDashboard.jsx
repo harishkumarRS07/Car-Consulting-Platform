@@ -531,7 +531,7 @@ export default function AdminDashboard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/55 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed top-16 sm:top-20 inset-x-0 bottom-0 bg-black/55 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -541,7 +541,7 @@ export default function AdminDashboard() {
         initial={{ x: -300 }}
         animate={{ x: sidebarOpen || isDesktop ? 0 : -300 }}
         transition={{ type: 'tween', ease: 'easeInOut', duration: 0.3 }}
-        className="fixed lg:static top-0 left-0 w-[280px] z-50 bg-white border-r border-gray-200 overflow-y-auto overflow-x-hidden min-h-screen"
+        className="fixed lg:static top-16 sm:top-20 lg:top-0 left-0 w-[280px] z-40 lg:z-auto bg-white border-r border-gray-200 overflow-y-auto overflow-x-hidden h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] lg:h-auto lg:min-h-screen flex flex-col"
       >
         <div className="p-6 flex flex-col">
           {/* Logo */}
@@ -1242,8 +1242,8 @@ export default function AdminDashboard() {
                                   <button
                                     onClick={() => handleToggleTestimonialStatus(test)}
                                     className={`px-3 py-1 rounded-full text-xs font-semibold select-none transition-all ${test.status === 'active'
-                                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                       }`}
                                   >
                                     {test.status === 'active' ? 'Active' : 'Hidden'}
@@ -1326,8 +1326,8 @@ export default function AdminDashboard() {
                         key={tab.id}
                         onClick={() => setSettingsTab(tab.id)}
                         className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all border-b-2 whitespace-nowrap ${settingsTab === tab.id
-                            ? 'border-purple-600 text-purple-600'
-                            : 'border-transparent text-gray-600 hover:text-gray-900'
+                          ? 'border-purple-600 text-purple-600'
+                          : 'border-transparent text-gray-600 hover:text-gray-900'
                           }`}
                       >
                         <tab.icon size={18} />
@@ -1445,8 +1445,8 @@ export default function AdminDashboard() {
                       <button
                         onClick={() => setNotificationSettings({ ...notificationSettings, emailNotifications: !notificationSettings.emailNotifications })}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${notificationSettings.emailNotifications
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 text-gray-700'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-300 text-gray-700'
                           }`}
                       >
                         {notificationSettings.emailNotifications ? 'On' : 'Off'}
@@ -1465,8 +1465,8 @@ export default function AdminDashboard() {
                       <button
                         onClick={() => setNotificationSettings({ ...notificationSettings, whatsappNotifications: !notificationSettings.whatsappNotifications })}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${notificationSettings.whatsappNotifications
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 text-gray-700'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-300 text-gray-700'
                           }`}
                       >
                         {notificationSettings.whatsappNotifications ? 'On' : 'Off'}
@@ -1485,8 +1485,8 @@ export default function AdminDashboard() {
                       <button
                         onClick={() => setNotificationSettings({ ...notificationSettings, bookingAlerts: !notificationSettings.bookingAlerts })}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${notificationSettings.bookingAlerts
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 text-gray-700'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-300 text-gray-700'
                           }`}
                       >
                         {notificationSettings.bookingAlerts ? 'On' : 'Off'}
@@ -1505,8 +1505,8 @@ export default function AdminDashboard() {
                       <button
                         onClick={() => setNotificationSettings({ ...notificationSettings, salesAlerts: !notificationSettings.salesAlerts })}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${notificationSettings.salesAlerts
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-300 text-gray-700'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-300 text-gray-700'
                           }`}
                       >
                         {notificationSettings.salesAlerts ? 'On' : 'Off'}
@@ -1547,8 +1547,8 @@ export default function AdminDashboard() {
                           <p className="text-sm text-gray-600">Add an extra layer of security</p>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${twoFactorEnabled
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
                           }`}>
                           {twoFactorEnabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -1556,8 +1556,8 @@ export default function AdminDashboard() {
                       <button
                         onClick={handleToggle2FA}
                         className={`px-6 py-3 font-semibold rounded-lg transition-all text-white ${twoFactorEnabled
-                            ? 'bg-red-600 hover:bg-red-700'
-                            : 'bg-purple-600 hover:bg-purple-700'
+                          ? 'bg-red-600 hover:bg-red-700'
+                          : 'bg-purple-600 hover:bg-purple-700'
                           }`}
                       >
                         {twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}

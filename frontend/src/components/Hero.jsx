@@ -73,16 +73,16 @@ export default function Hero() {
             </p>
 
             {/* Quick Action CTAs */}
-            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center w-full sm:w-auto">
+            <div className="mt-6 sm:mt-8 flex flex-row gap-2 sm:gap-4 items-center w-full sm:w-auto">
               <Link
                 to="/cars"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-purple-600/30 text-center hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="flex-1 min-w-0 whitespace-nowrap px-2 sm:px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-purple-600/30 text-center hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Browse Collection
               </Link>
               <Link
                 to="/sell"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-white/10 text-white text-xs sm:text-sm font-bold border border-white/20 rounded-xl text-center hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="flex-1 min-w-0 whitespace-nowrap px-2 sm:px-8 py-3 bg-white/10 text-white text-xs sm:text-sm font-bold border border-white/20 rounded-xl text-center hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Sell Your Car
               </Link>
