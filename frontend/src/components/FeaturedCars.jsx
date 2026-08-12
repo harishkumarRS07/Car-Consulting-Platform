@@ -8,6 +8,7 @@ import CarCard from "./CarCard";
 
 export default function FeaturedCars() {
   const [activeTab, setActiveTab] = useState("best");
+  const [rawCars, setRawCars] = useState([]);
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,37 +27,46 @@ export default function FeaturedCars() {
   };
 
   useEffect(() => {
+    let isMounted = true;
     const fetchCars = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Both tabs use the same base list of cars from the new arrivals API
         const response = await carsAPI.getNewArrivals();
-        const fetchedCars = response.data.cars || [];
-        
-        if (activeTab === "best") {
-          // Shuffle the list of cars for the Best buys tab
-          const shuffled = [...fetchedCars];
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-          }
-          setCars(shuffled);
-        } else {
-          // Keep original newly added chronological order
-          setCars(fetchedCars);
+        if (isMounted) {
+          setRawCars(response.data.cars || []);
         }
       } catch (err) {
-        console.error('Error fetching cars:', err);
-        setError('Failed to load cars');
+        if (isMounted) {
+          console.error('Error fetching cars:', err);
+          setError('Failed to load cars');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchCars();
-  }, [activeTab]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "best") {
+      const shuffled = [...rawCars];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      setCars(shuffled);
+    } else {
+      setCars(rawCars);
+    }
+  }, [activeTab, rawCars]);
 
   const handleWishlist = (car) => {
     if (wishlist.find((w) => w._id === car._id)) {

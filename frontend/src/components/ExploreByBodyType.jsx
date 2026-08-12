@@ -73,32 +73,30 @@ export default function ExploreByBodyType() {
 
   // Fetch cars for selected body type
   useEffect(() => {
+    let isMounted = true;
     const fetchCarsByBodyType = async () => {
       setLoading(true);
-      const startTime = Date.now();
       try {
         const response = await carsAPI.getCars({ bodyType: activeBodyType, limit: 100 });
-        const fetchedCars = response.data.cars || [];
-        
-        const elapsed = Date.now() - startTime;
-        if (fetchedCars.length === 0) {
-          if (elapsed < 500) {
-            await new Promise((resolve) => setTimeout(resolve, 500 - elapsed));
-          }
-        } else if (elapsed < 300) {
-          await new Promise((resolve) => setTimeout(resolve, 300 - elapsed));
+        if (isMounted) {
+          setCars(response.data.cars || []);
         }
-        
-        setCars(fetchedCars);
       } catch (error) {
-        console.error('Error fetching cars:', error);
-        setCars([]);
+        if (isMounted) {
+          console.error('Error fetching cars:', error);
+          setCars([]);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchCarsByBodyType();
+    return () => {
+      isMounted = false;
+    };
   }, [activeBodyType]);
 
   const displayedCars = (cars || [])

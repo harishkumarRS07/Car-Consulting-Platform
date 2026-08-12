@@ -4,13 +4,28 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const images = [
-  '/hero1.png',
-  '/hero2.png',
-  '/hero3.png',
+  '/hero1.webp',
+  '/hero2.webp',
+  '/hero3.webp',
 ];
 
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loadedIndices, setLoadedIndices] = useState(() => new Set([0, 1]));
+
+  // Always preload current slide and next slide
+  useEffect(() => {
+    const nextIndex = (currentIndex + 1) % images.length;
+    setLoadedIndices((prev) => {
+      if (prev.has(currentIndex) && prev.has(nextIndex)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(currentIndex);
+      next.add(nextIndex);
+      return next;
+    });
+  }, [currentIndex]);
 
   // Auto-slide every 6 seconds
   useEffect(() => {
@@ -33,15 +48,22 @@ export default function Hero() {
     <div className="relative w-full h-[65vh] sm:h-[75vh] lg:h-[85vh] xl:h-[90vh] overflow-hidden">
       {/* Background Image with transition */}
       <div className="absolute inset-0 z-0">
-        {images.map((img, idx) => (
-          <img
-            key={idx}
-            src={img}
-            alt={`Hero slide ${idx + 1}`}
-            className={`absolute w-full h-full object-cover transition-all duration-1000 transform scale-105 ${idx === currentIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
-              }`}
-          />
-        ))}
+        {images.map((img, idx) => {
+          const isLoaded = loadedIndices.has(idx);
+          if (!isLoaded) return null;
+
+          return (
+            <img
+              key={idx}
+              src={img}
+              alt={`Hero slide ${idx + 1}`}
+              fetchPriority={idx === 0 ? 'high' : undefined}
+              loading={idx === 0 ? undefined : 'lazy'}
+              className={`absolute w-full h-full object-cover transition-all duration-1000 transform scale-105 ${idx === currentIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
+                }`}
+            />
+          );
+        })}
       </div>
 
       {/* Modern Deep Dark Overlay (#0F172A) */}

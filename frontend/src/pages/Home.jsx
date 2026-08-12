@@ -176,34 +176,54 @@ export default function Home() {
 
   // Fetch New Arrivals independently
   useEffect(() => {
+    let isMounted = true;
     const fetchNewArrivals = async () => {
       try {
         const res = await carsAPI.getNewArrivals();
-        setNewArrivals(res.data.cars || []);
+        if (isMounted) {
+          setNewArrivals(res.data.cars || []);
+        }
       } catch (error) {
-        console.error('Error fetching new arrivals:', error);
+        if (isMounted) {
+          console.error('Error fetching new arrivals:', error);
+        }
       } finally {
-        setNewArrivalsLoading(false);
+        if (isMounted) {
+          setNewArrivalsLoading(false);
+        }
       }
     };
 
     fetchNewArrivals();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Fetch Testimonials independently
   useEffect(() => {
+    let isMounted = true;
     const fetchTestimonials = async () => {
       try {
         const res = await testimonialsAPI.getTestimonialsPublic();
-        setTestimonials(res.data.testimonials || []);
+        if (isMounted) {
+          setTestimonials(res.data.testimonials || []);
+        }
       } catch (error) {
-        console.error('Error fetching testimonials:', error);
+        if (isMounted) {
+          console.error('Error fetching testimonials:', error);
+        }
       } finally {
-        setTestimonialsLoading(false);
+        if (isMounted) {
+          setTestimonialsLoading(false);
+        }
       }
     };
 
     fetchTestimonials();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleWishlist = (car) => {

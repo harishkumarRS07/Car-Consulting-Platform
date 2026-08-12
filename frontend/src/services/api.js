@@ -54,49 +54,136 @@ apiClient.interceptors.response.use(
   }
 );
 
+// In-flight pending requests map: cacheKey -> Promise
+const inFlightRequests = new Map();
+
+// Short-lived response cache map: cacheKey -> { data, timestamp }
+const responseCache = new Map();
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds TTL
+
+export const clearApiCache = () => {
+  responseCache.clear();
+  inFlightRequests.clear();
+};
+
+export const deduplicatedGet = async (url, config = {}) => {
+  const { skipCache, ...axiosConfig } = config;
+  const cacheKey = `${url}?${JSON.stringify(axiosConfig.params || {})}`;
+
+  // 1. Return cached response if valid
+  if (!skipCache && responseCache.has(cacheKey)) {
+    const cached = responseCache.get(cacheKey);
+    if (Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+    responseCache.delete(cacheKey);
+  }
+
+  // 2. Return existing in-flight promise if duplicate call occurs concurrently
+  if (inFlightRequests.has(cacheKey)) {
+    return inFlightRequests.get(cacheKey);
+  }
+
+  // 3. Dispatch HTTP request and track promise until settled
+  const requestPromise = (async () => {
+    try {
+      const response = await apiClient.get(url, axiosConfig);
+      if (!skipCache && response.status === 200) {
+        responseCache.set(cacheKey, { data: response, timestamp: Date.now() });
+      }
+      return response;
+    } finally {
+      inFlightRequests.delete(cacheKey);
+    }
+  })();
+
+  inFlightRequests.set(cacheKey, requestPromise);
+  return requestPromise;
+};
+
 // Auth API
 export const authAPI = {
   signup: (data) => apiClient.post('/auth/register', data),
   login: (data) => apiClient.post('/auth/login', data),
-  getProfile: () => apiClient.get('/auth/profile', { skipLoader: true }),
-  updateProfile: (data) => apiClient.put('/auth/profile', data),
+  getProfile: () => deduplicatedGet('/auth/profile', { skipLoader: true }),
+  updateProfile: async (data) => {
+    const res = await apiClient.put('/auth/profile', data);
+    clearApiCache();
+    return res;
+  },
 };
 
 // Cars API
 export const carsAPI = {
-  getCars: (params) => apiClient.get('/cars', { params }),
-  getCarById: (id) => apiClient.get(`/cars/${id}`),
-  createCar: (data) => apiClient.post('/cars', data),
-  updateCar: (id, data) => apiClient.put(`/cars/${id}`, data),
-  deleteCar: (id) => apiClient.delete(`/cars/${id}`),
-  getFeaturedCars: () => apiClient.get('/cars/featured'),
-  getNewArrivals: () => apiClient.get('/cars/new-arrivals'),
+  getCars: (params) => deduplicatedGet('/cars', { params }),
+  getCarById: (id) => deduplicatedGet(`/cars/${id}`),
+  createCar: async (data) => {
+    const res = await apiClient.post('/cars', data);
+    clearApiCache();
+    return res;
+  },
+  updateCar: async (id, data) => {
+    const res = await apiClient.put(`/cars/${id}`, data);
+    clearApiCache();
+    return res;
+  },
+  deleteCar: async (id) => {
+    const res = await apiClient.delete(`/cars/${id}`);
+    clearApiCache();
+    return res;
+  },
+  getFeaturedCars: () => deduplicatedGet('/cars/featured'),
+  getNewArrivals: () => deduplicatedGet('/cars/new-arrivals'),
   addToWishlist: (carId) => apiClient.post('/cars/wishlist/add', { carId }, { skipLoader: true }),
   removeFromWishlist: (carId) => apiClient.delete(`/cars/wishlist/remove/${carId}`, { skipLoader: true }),
-  getDashboardStats: () => apiClient.get('/cars/admin/stats'),
+  getDashboardStats: () => deduplicatedGet('/cars/admin/stats', { skipCache: true }),
 };
 
 // Sell API
 export const sellAPI = {
-  getActiveBrands: () => apiClient.get('/sell/brands'),
-  getModelsByBrand: (brand) => apiClient.get(`/sell/models/${brand}`),
-  createEvaluation: (data) => apiClient.post('/sell/request', data),
-  getMyRequests: () => apiClient.get('/sell/my-requests'),
+  getActiveBrands: () => deduplicatedGet('/sell/brands'),
+  getModelsByBrand: (brand) => deduplicatedGet(`/sell/models/${brand}`),
+  createEvaluation: async (data) => {
+    const res = await apiClient.post('/sell/request', data);
+    clearApiCache();
+    return res;
+  },
+  getMyRequests: () => deduplicatedGet('/sell/my-requests'),
   // Admin schedules
-  getSchedules: (params) => apiClient.get('/sell/admin/schedules', { params }),
-  updateScheduleStatus: (id, status) => apiClient.put(`/sell/admin/schedules/${id}`, { status }),
-  getScheduleStats: () => apiClient.get('/sell/admin/schedule-stats'),
-  deleteSchedule: (id) => apiClient.delete(`/sell/admin/schedules/${id}`),
+  getSchedules: (params) => deduplicatedGet('/sell/admin/schedules', { params, skipCache: true }),
+  updateScheduleStatus: async (id, status) => {
+    const res = await apiClient.put(`/sell/admin/schedules/${id}`, { status });
+    clearApiCache();
+    return res;
+  },
+  getScheduleStats: () => deduplicatedGet('/sell/admin/schedule-stats', { skipCache: true }),
+  deleteSchedule: async (id) => {
+    const res = await apiClient.delete(`/sell/admin/schedules/${id}`);
+    clearApiCache();
+    return res;
+  },
 };
 
 // Testimonials API
 export const testimonialsAPI = {
-  getTestimonialsPublic: () => apiClient.get('/testimonials'),
-  getTestimonialsAdmin: (params) => apiClient.get('/testimonials/admin', { params }),
-  getTestimonialById: (id) => apiClient.get(`/testimonials/${id}`),
-  createTestimonial: (data) => apiClient.post('/testimonials', data),
-  updateTestimonial: (id, data) => apiClient.put(`/testimonials/${id}`, data),
-  deleteTestimonial: (id) => apiClient.delete(`/testimonials/${id}`),
+  getTestimonialsPublic: () => deduplicatedGet('/testimonials'),
+  getTestimonialsAdmin: (params) => deduplicatedGet('/testimonials/admin', { params, skipCache: true }),
+  getTestimonialById: (id) => deduplicatedGet(`/testimonials/${id}`),
+  createTestimonial: async (data) => {
+    const res = await apiClient.post('/testimonials', data);
+    clearApiCache();
+    return res;
+  },
+  updateTestimonial: async (id, data) => {
+    const res = await apiClient.put(`/testimonials/${id}`, data);
+    clearApiCache();
+    return res;
+  },
+  deleteTestimonial: async (id) => {
+    const res = await apiClient.delete(`/testimonials/${id}`);
+    clearApiCache();
+    return res;
+  },
 };
 
 export default apiClient;
