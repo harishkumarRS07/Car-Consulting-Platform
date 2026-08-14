@@ -76,9 +76,9 @@ export default function AdminDashboard() {
   // Settings state
   const [settingsTab, setSettingsTab] = useState('account');
   const [accountSettings, setAccountSettings] = useState({
-    businessName: 'Vishnu Car Consulting',
-    email: 'admin@vishnucar.com',
-    phone: '+91-9566728834',
+    businessName: 'Mech Doctor Automation',
+    email: 'mechdoctorautomation22@gmail.com',
+    phone: '+91-8072028295',
   });
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
@@ -547,7 +547,7 @@ export default function AdminDashboard() {
           {/* Logo */}
           <div className="mb-8">
             <h3 className="text-xs tracking-widest uppercase font-bold text-purple-600">
-              VCC Admin
+              MDA Admin Panel
             </h3>
           </div>
 

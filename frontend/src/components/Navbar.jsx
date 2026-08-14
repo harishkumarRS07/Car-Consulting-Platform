@@ -145,9 +145,9 @@ export default function Navbar() {
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-6 flex-shrink-0">
-              <a href="tel:+919566728834" className="flex flex-col items-end justify-center border-r border-white/25 pr-6 hover:opacity-90 transition-opacity">
+              <a href="tel:+918072028295" className="flex flex-col items-end justify-center border-r border-white/25 pr-6 hover:opacity-90 transition-opacity">
                 <span className="text-[9px] font-bold text-purple-200 uppercase tracking-wider">Support</span>
-                <span className="text-white font-extrabold text-sm sm:text-xs xl:text-sm whitespace-nowrap">+91 9566728834</span>
+                <span className="text-white font-extrabold text-sm sm:text-xs xl:text-sm whitespace-nowrap">+91 8072028295</span>
               </a>
 
               {user ? (
@@ -344,11 +344,11 @@ export default function Navbar() {
                 <div className="space-y-2 pt-4 border-t border-gray-100">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Helpline</span>
                   <a
-                    href="tel:+919566728834"
+                    href="tel:+918072028295"
                     className="flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-extrabold text-gray-700 bg-gray-50 border border-gray-100"
                   >
                     <Phone size={16} className="text-purple-600" />
-                    <span>Call Support: +91 9566728834</span>
+                    <span>Call Support: +91 8072028295</span>
                   </a>
                 </div>
               </div>

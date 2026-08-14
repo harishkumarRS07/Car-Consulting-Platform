@@ -18,13 +18,13 @@ export default function CarCard({ car, onWishlist, isInWishlist }) {
   const model = car.model ? capitalize(car.model) : '';
   const fullTitle = `${year} ${brand} ${model}`.trim() || car.title || 'Car Details';
 
-  const variantText = car.variant 
-    ? capitalize(car.variant) 
+  const variantText = car.variant
+    ? capitalize(car.variant)
     : `${capitalize(car.color || 'Standard')} • ${car.owner || '1st'} Owner`;
 
   // Filter tags for responsiveness (hide RTO or make compact on mobile)
   const tags = [
-    car.kmsDriven ? `${(car.kmsDriven / 1000).toFixed(0)}k km` : null,
+    car.kmsDriven ? `${(car.kmsDriven / 1000).toFixed(0)}K km` : null,
     car.fuelType ? capitalize(car.fuelType) : null,
     car.transmission ? capitalize(car.transmission) : null,
     car.rto ? car.rto.toUpperCase() : null,
@@ -34,7 +34,7 @@ export default function CarCard({ car, onWishlist, isInWishlist }) {
     if (car.category === 'luxury') return 'Premium Luxury Selection';
     if (car.category === 'assured') return '150-Point Checked';
     if (car.availability === 'in-stock') return 'Ready for Immediate Delivery';
-    return '1-Year Engine Warranty';
+    return 'Excellent Condition';
   };
 
   const defaultImg = 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80';
@@ -66,9 +66,8 @@ export default function CarCard({ car, onWishlist, isInWishlist }) {
 
         {/* Availability Badge */}
         {car.availability && car.availability !== 'in-stock' && (
-          <span className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm z-10 ${
-            car.availability === 'booked' ? 'bg-red-500' : 'bg-amber-500'
-          }`}>
+          <span className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-white shadow-sm z-10 ${car.availability === 'booked' ? 'bg-red-500' : 'bg-amber-500'
+            }`}>
             {car.availability}
           </span>
         )}
@@ -83,11 +82,10 @@ export default function CarCard({ car, onWishlist, isInWishlist }) {
             if (onWishlist) onWishlist(car);
           }}
           aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md border transition-all duration-200 z-10 ${
-            isInWishlist
-              ? 'bg-red-500 text-white border-red-400'
-              : 'bg-white/80 text-gray-700 hover:bg-white border-white/60'
-          }`}
+          className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-md border transition-all duration-200 z-10 ${isInWishlist
+            ? 'bg-red-500 text-white border-red-400'
+            : 'bg-white/80 text-gray-700 hover:bg-white border-white/60'
+            }`}
         >
           <Heart
             size={13}
@@ -140,9 +138,8 @@ export default function CarCard({ car, onWishlist, isInWishlist }) {
             {tags.map((tag, idx) => (
               <span
                 key={idx}
-                className={`px-1.5 py-0.5 text-[9px] sm:px-2 sm:py-0.5 sm:text-[10px] font-semibold bg-slate-100/90 text-slate-650 rounded-md tracking-tight select-none ${
-                  idx === 3 ? 'hidden sm:inline-block' : 'inline-block' // Hide 4th tag (RTO) on mobile to prevent overflow wrap
-                }`}
+                className={`px-1.5 py-0.5 text-[9px] sm:px-2 sm:py-0.5 sm:text-[10px] font-semibold bg-slate-100/90 text-slate-650 rounded-md tracking-tight select-none ${idx === 3 ? 'hidden sm:inline-block' : 'inline-block' // Hide 4th tag (RTO) on mobile to prevent overflow wrap
+                  }`}
               >
                 {tag}
               </span>

@@ -4,7 +4,46 @@ import FilterAccordion from './FilterAccordion';
 import { motion } from 'framer-motion';
 import { Search, RotateCcw } from 'lucide-react';
 
-const BRANDS = ['hyundai', 'maruti', 'honda', 'toyota', 'tata', 'skoda', 'mahindra', 'renault', 'bmw', 'kia', 'volkswagen', 'jeep'];
+const BRANDS = [
+  'hyundai',
+  'maruti',
+  'honda',
+  'toyota',
+  'tata',
+  'skoda',
+  'mahindra',
+  'renault',
+  'bmw',
+  'kia',
+  'volkswagen',
+  'jeep',
+  'audi',
+  'mercedes-benz',
+  'volvo',
+  'jaguar',
+  'land-rover',
+  'lexus',
+  'nissan',
+  'mg',
+  'citroen',
+  'byd',
+  'isuzu',
+  'force',
+  'fiat',
+  'ford',
+  'mitsubishi',
+  'chevrolet',
+  'datsun',
+  'mini',
+  'porsche',
+  'maserati',
+  'lamborghini',
+  'ferrari',
+  'bentley',
+  'rolls-royce',
+  'aston-martin',
+  'mclaren'
+];
 const BODY_TYPES = ['sedan', 'suv', 'hatchback', 'muv', 'coupe', 'convertible', 'sports'];
 const FUEL_TYPES = ['petrol', 'diesel', 'cng', 'electric'];
 const TRANSMISSION = ['manual', 'automatic'];

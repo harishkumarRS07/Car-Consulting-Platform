@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Instagram, Youtube, ChevronDown } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Youtube, Facebook, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
@@ -51,7 +51,7 @@ export default function Footer() {
             {/* Social Icons */}
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://www.instagram.com/vishnu_cars_consulting?igsh=MTJydG5mbG11b3RxbA=="
+                href="https://www.instagram.com/mech_doctor_automation_karur?igsh=MXZ0Y3ptMHpvdWNvMQ=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 active:scale-95 transition-all text-white backdrop-blur-md flex items-center justify-center"
@@ -60,13 +60,22 @@ export default function Footer() {
                 <Instagram size={16} />
               </a>
               <a
-                href="https://www.youtube.com/@Vishnucarsconsulting"
+                href="https://www.youtube.com/@MechDoctorAutomationKarur"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 active:scale-95 transition-all text-white backdrop-blur-md flex items-center justify-center"
                 aria-label="YouTube"
               >
                 <Youtube size={16} />
+              </a>
+              <a
+                href="https://www.facebook.com/share/1DWZHGwSon/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 active:scale-95 transition-all text-white backdrop-blur-md flex items-center justify-center"
+                aria-label="Facebook"
+              >
+                <Facebook size={16} />
               </a>
             </div>
           </div>
@@ -153,24 +162,24 @@ export default function Footer() {
                     className="space-y-4 mt-3 md:mt-0 overflow-hidden"
                   >
                     <a
-                      href="tel:+919566728834"
+                      href="tel:+918072028295"
                       className="flex items-center gap-3 text-purple-100/70 hover:text-white transition-colors text-sm group py-1"
                     >
                       <div className="p-2 rounded-lg bg-white/10 border border-white/10 group-hover:bg-white/20 transition-colors backdrop-blur-md flex items-center justify-center">
                         <Phone size={14} className="text-white" />
                       </div>
-                      <span className="font-semibold">+91 9566728834</span>
+                      <span className="font-semibold">+91 8072028295</span>
                     </a>
 
                     <a
-                      href="mailto:vishnucarconsulting2022@gmail.com"
+                      href="mailto:mechdoctorautomation22@gmail.com"
                       className="flex items-center gap-3 text-purple-100/70 hover:text-white transition-colors text-sm group py-1"
                     >
                       <div className="p-2 rounded-lg bg-white/10 border border-white/10 group-hover:bg-white/20 transition-colors backdrop-blur-md flex items-center justify-center">
                         <Mail size={14} className="text-white" />
                       </div>
                       <span className="font-semibold truncate max-w-[200px] sm:max-w-none">
-                        vishnucarconsulting2022@gmail.com
+                        mechdoctorautomation22@gmail.com
                       </span>
                     </a>
 

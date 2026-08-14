@@ -128,7 +128,7 @@ export default function CarDetails() {
   };
 
   const whatsappMessage = `Hi, I'm interested in ${car.title}. Can you please provide more details?`;
-  const whatsappLink = `https://wa.me/919566728834?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappLink = `https://wa.me/918072028295?text=${encodeURIComponent(whatsappMessage)}`;
 
   // Mobile Gallery Swipe handlers
   const handleTouchStart = (e) => {
@@ -561,7 +561,7 @@ export default function CarDetails() {
           <div className="flex gap-2 items-center">
             {/* Call Support */}
             <a
-              href="tel:+919566728834"
+              href="tel:+918072028295"
               className="p-2.5 rounded-xl border border-gray-250 bg-gray-50 text-gray-600 flex items-center justify-center active:scale-95 transition-all"
               aria-label="Call Support"
             >

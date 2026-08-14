@@ -385,7 +385,7 @@ export default function Home() {
               Our Values
             </span>
             <h2 className="text-4xl md:text-5xl font-black text-gray-950 tracking-tight">
-              Why Choose Vishnu Car Consulting
+              Why Choose Mech Doctor Automation
             </h2>
             <p className="text-gray-600 mt-4 max-w-xl mx-auto text-base sm:text-lg">
               We redefine luxury car brokerage with absolute transparency, client devotion, and safety guarantees.

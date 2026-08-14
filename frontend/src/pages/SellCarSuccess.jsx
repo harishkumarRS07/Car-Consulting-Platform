@@ -23,8 +23,8 @@ export default function SellCarSuccess() {
     }
   }, [location]);
 
-  // Stripped dealer number (+91 95667 28834)
-  const dealerPhone = '919566728834'; 
+  // Stripped dealer number (+91 80720 28295)
+  const dealerPhone = '918072028295'; 
 
   // Format expected price for presentation
   const formattedPrice = Number(expectedPrice).toLocaleString('en-IN');

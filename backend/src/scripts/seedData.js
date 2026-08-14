@@ -9,24 +9,32 @@ const seedData = async () => {
     console.log('✅ Connected to MongoDB');
 
     // Check if admin already exists
-    const adminEmail = process.env.ADMIN_EMAIL || 'harishvicky07@gmail.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || '123456';
-
-    const existingAdmin = await User.findOne({ email: adminEmail });
-    
-    if (!existingAdmin) {
-      // Create admin user with credentials from environment
-      const admin = new User({
-        name: 'Admin User',
-        phone: '9999999999', // Provide a mock phone number to pass User model validation
-        email: adminEmail,
-        password: adminPassword,
-        role: 'admin',
-      });
-      await admin.save();
-      console.log(`✅ Admin user created: ${adminEmail}`);
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+ 
+    if (!adminEmail || !adminPassword) {
+      console.warn('⚠️ Skipping admin seed/update: ADMIN_EMAIL or ADMIN_PASSWORD is not set in environment variables.');
     } else {
-      console.log(`⚠️ Admin user already exists (${adminEmail})`);
+      let admin = await User.findOne({ email: adminEmail });
+      
+      if (!admin) {
+        // Create admin user with credentials from environment
+        admin = new User({
+          name: 'Admin User',
+          phone: '8072028295', // Use the updated admin support phone
+          email: adminEmail,
+          password: adminPassword,
+          role: 'admin',
+        });
+        await admin.save();
+        console.log(`✅ Admin user created: ${adminEmail}`);
+      } else {
+        admin.password = adminPassword;
+        admin.role = 'admin';
+        admin.phone = '8072028295';
+        await admin.save();
+        console.log(`✅ Admin user updated/verified: ${adminEmail}`);
+      }
     }
 
     // Seed Testimonials
