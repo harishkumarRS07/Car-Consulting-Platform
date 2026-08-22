@@ -400,11 +400,13 @@ export default function CarDetails() {
               className="bg-white border border-gray-100 rounded-[18px] p-5 sm:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.01)]"
             >
               <div className="mb-4">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Price</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  Selling Price
+                </span>
+
                 <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-black text-purple-650 mt-1 select-none leading-none">
                   {formatPriceCompact(car.price)}
                 </h2>
-                <p className="text-[10px] text-gray-400 mt-1 font-medium">Ex-showroom price (inclusive of all taxes)</p>
               </div>
 
               {/* Specification Specs List */}

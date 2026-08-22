@@ -20,6 +20,7 @@ export default function Cars() {
   const [sort, setSort] = useState('newest');
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const {
     filters,
@@ -133,7 +134,7 @@ export default function Cars() {
     return () => {
       isMounted = false;
     };
-  }, [queryParams, sort]);
+  }, [queryParams, sort, retryCount]);
 
   const handleWishlist = (car) => {
     if (wishlist.find((w) => w._id === car._id)) {
@@ -359,6 +360,7 @@ export default function Cars() {
                 <button
                   onClick={() => {
                     setError(null);
+                    setRetryCount((prev) => prev + 1);
                   }}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm"
                 >

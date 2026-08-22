@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { carsAPI } from "../services/api";
 import { useCarsStore } from "../context/store";
 import CarCard from "./CarCard";
+import SkeletonCarCard from "./SkeletonCarCard";
+
 
 export default function FeaturedCars() {
   const [activeTab, setActiveTab] = useState("best");
@@ -12,6 +14,7 @@ export default function FeaturedCars() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { addToWishlist, removeFromWishlist, wishlist } = useCarsStore();
   const scrollContainerRef = useRef(null);
 
@@ -53,7 +56,7 @@ export default function FeaturedCars() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [retryCount]);
 
   useEffect(() => {
     if (activeTab === "best") {
@@ -134,12 +137,23 @@ export default function FeaturedCars() {
         {loading ? (
           <div className="flex gap-6 overflow-x-auto pb-6 mb-16 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="min-w-[280px] sm:min-w-[320px] md:min-w-[340px] bg-gray-50 border border-gray-100 rounded-3xl h-[380px] animate-pulse" />
+              <div key={i} className="min-w-[280px] sm:min-w-[320px] md:min-w-[340px]">
+                <SkeletonCarCard />
+              </div>
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16 flex flex-col items-center justify-center gap-4">
             <p className="text-red-500 font-semibold">{error}</p>
+            <p className="text-slate-500 text-xs max-w-md px-4">
+              The server took too long to respond or there is a temporary connection issue. Please try again.
+            </p>
+            <button
+              onClick={() => setRetryCount(prev => prev + 1)}
+              className="px-6 py-2.5 bg-purple-600 text-white rounded-xl text-xs sm:text-sm font-semibold hover:bg-purple-700 transition duration-200 shadow-md shadow-purple-500/25 active:scale-95"
+            >
+              Retry Connection
+            </button>
           </div>
         ) : cars.length === 0 ? (
           <div className="text-center py-16">
