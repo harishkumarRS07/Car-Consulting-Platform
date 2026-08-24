@@ -685,7 +685,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.08),transparent_50%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-10 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 text-center">
             {[
               { label: "Quality Checks Passed", value: "150+" },
               { label: "Customer Rating", value: "4.8★" },
@@ -698,10 +698,10 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="space-y-3 p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-2xl"
+                className="space-y-3 p-4 sm:p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-2xl"
               >
                 {/* Main Counter Text - Pure crisp white for sharp contrast */}
-                <h3 className="text-5xl md:text-6xl font-black tracking-tight text-white">
+                <h3 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white">
                   <AnimatedCounter value={stat.value} />
                 </h3>
                 {/* Label Text - Light high-contrast purple tone */}

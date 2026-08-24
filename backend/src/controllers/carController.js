@@ -195,7 +195,14 @@ export const updateCar = async (req, res, next) => {
       return next(new AppError('Car ID is required', 400));
     }
 
+    console.log('[DEBUG BACKEND] updating car ID:', req.params.id, 'with body:', req.body);
     const updateData = { ...req.body };
+    
+    // Remove immutable/read-only fields to avoid Mongoose/MongoDB errors
+    delete updateData._id;
+    delete updateData.__v;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
 
     // Process base64 images through Cloudinary if present
     if (updateData.images && Array.isArray(updateData.images)) {
@@ -204,6 +211,8 @@ export const updateCar = async (req, res, next) => {
       );
       updateData.images = processedImages.filter(Boolean);
     }
+
+    console.log('[DEBUG BACKEND] clean updateData to save:', updateData);
 
     const car = await Car.findByIdAndUpdate(req.params.id, updateData, {
       new: true,

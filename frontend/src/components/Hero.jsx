@@ -57,7 +57,7 @@ export default function Hero() {
               key={idx}
               src={img}
               alt={`Hero slide ${idx + 1}`}
-              fetchPriority={idx === 0 ? 'high' : undefined}
+              fetchpriority={idx === 0 ? 'high' : undefined}
               loading={idx === 0 ? undefined : 'lazy'}
               className={`absolute w-full h-full object-cover transition-all duration-1000 transform scale-105 ${idx === currentIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
                 }`}

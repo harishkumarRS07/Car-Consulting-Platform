@@ -122,9 +122,12 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
         });
       }
 
+      // Remove Mongoose metadata properties on the client side
+      const { _id, __v, createdAt, updatedAt, ...sanitizedFormData } = formData;
+
       // Prepare sanitized payload with explicit numeric types
       const dataToSend = {
-        ...formData,
+        ...sanitizedFormData,
         title: formData.title.trim(),
         brand: formData.brand.trim(),
         model: formData.model.trim(),
@@ -135,6 +138,8 @@ export default function AdminCarForm({ car, onClose, onSubmit }) {
         location: formData.location.trim(),
         images: validImages.length > 0 ? validImages : formData.images || [],
       };
+
+      console.log('[DEBUG FRONTEND] dataToSend payload:', dataToSend);
 
       if (car?._id) {
         await carsAPI.updateCar(car._id, dataToSend);

@@ -64,14 +64,22 @@ export default function AdminCarList({ cars, loading, onEdit, onDelete }) {
                 <span className="text-gray-700">{car.location}</span>
               </td>
               <td className="py-4 px-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                   car.availability === 'in-stock'
-                    ? 'bg-green-100 text-green-700 border border-green-200'
+                    ? 'bg-green-100 text-green-700 border-green-200'
                     : car.availability === 'booked'
-                    ? 'bg-red-100 text-red-700 border border-red-200'
-                    : 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                    ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                    : car.availability === 'sold'
+                    ? 'bg-red-100 text-red-700 border-red-200'
+                    : 'bg-blue-100 text-blue-700 border-blue-200'
                 }`}>
-                  {car.availability === 'in-stock' ? 'In Stock' : car.availability === 'booked' ? 'Booked' : 'Upcoming'}
+                  {car.availability === 'in-stock'
+                    ? 'In Stock'
+                    : car.availability === 'booked'
+                    ? 'Booked'
+                    : car.availability === 'sold'
+                    ? 'Sold'
+                    : 'Upcoming'}
                 </span>
               </td>
               <td className="py-4 px-4">

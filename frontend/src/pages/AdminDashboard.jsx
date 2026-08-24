@@ -512,12 +512,25 @@ export default function AdminDashboard() {
   ];
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+    const s = status?.toLowerCase();
+    switch (s) {
+      case 'pending':
+        return 'bg-amber-50 text-amber-700 border border-amber-200';
+      case 'under review':
+        return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'inspection scheduled':
+      case 'confirmed':
+        return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'offer sent':
+        return 'bg-cyan-50 text-cyan-700 border border-cyan-200';
+      case 'purchased':
+      case 'completed':
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      case 'rejected':
+      case 'cancelled':
+        return 'bg-rose-50 text-rose-700 border border-rose-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border border-gray-250';
     }
   };
 
@@ -603,8 +616,8 @@ export default function AdminDashboard() {
                 {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
               </motion.button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{navItems.find(i => i.id === activeTab)?.label || 'Overview'}</h1>
-                <p className="text-sm text-gray-500">Manage your vehicle listings and consultations.</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{navItems.find(i => i.id === activeTab)?.label || 'Overview'}</h1>
+                <p className="hidden md:block text-sm text-gray-500">Manage your vehicle listings and consultations.</p>
               </div>
             </div>
 
@@ -666,7 +679,7 @@ export default function AdminDashboard() {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-[1400px] mx-auto px-8 py-6">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-4 sm:py-6">
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <motion.div
@@ -699,7 +712,7 @@ export default function AdminDashboard() {
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-2xl p-8 border border-gray-200 shadow-xl"
+                      className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-xl"
                     >
                       <AdminCarForm
                         car={editingCar}
@@ -729,7 +742,7 @@ export default function AdminDashboard() {
                     />
                     <StatCard
                       label="SOLD CARS"
-                      value={stats.bookedCars}
+                      value={stats.soldCars}
                       change={`Avg Price: ${formatPriceCompact(stats.avgPrice)}`}
                       icon={null}
                       trend="up"
@@ -856,7 +869,7 @@ export default function AdminDashboard() {
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-2xl p-8 border border-gray-200 shadow-xl"
+                      className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-xl"
                     >
                       <AdminCarForm
                         car={editingCar}
@@ -1007,10 +1020,12 @@ export default function AdminDashboard() {
                                     onChange={(e) => handleUpdateScheduleStatus(schedule._id, e.target.value)}
                                     className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-gray-900"
                                   >
-                                    <option value="pending">Pending</option>
-                                    <option value="confirmed">Confirmed</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Under Review">Under Review</option>
+                                    <option value="Inspection Scheduled">Inspection Scheduled</option>
+                                    <option value="Offer Sent">Offer Sent</option>
+                                    <option value="Purchased">Purchased</option>
+                                    <option value="Rejected">Rejected</option>
                                   </select>
                                   <button
                                     onClick={() => setSelectedSchedule(schedule)}
@@ -1080,7 +1095,7 @@ export default function AdminDashboard() {
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-2xl p-8 border border-gray-200 shadow-xl"
+                      className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-xl"
                     >
                       <AdminCarForm
                         car={editingCar}
@@ -1309,7 +1324,7 @@ export default function AdminDashboard() {
                 className="space-y-6"
               >
                 {/* Settings Header */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+                <div className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <Settings size={32} className="text-purple-600" />
                     <h2 className="text-3xl font-bold text-gray-900">Settings & Preferences</h2>
@@ -1342,7 +1357,7 @@ export default function AdminDashboard() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm"
+                    className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-sm"
                   >
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-2xl font-bold text-gray-900">Account Information</h3>
@@ -1429,7 +1444,7 @@ export default function AdminDashboard() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm space-y-4"
+                    className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-sm space-y-4"
                   >
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">Notification Preferences</h3>
 
@@ -1520,7 +1535,7 @@ export default function AdminDashboard() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm space-y-6"
+                    className="bg-white rounded-2xl p-4 sm:p-8 border border-gray-200 shadow-sm space-y-6"
                   >
                     <h3 className="text-2xl font-bold text-gray-900">Security Settings</h3>
 
@@ -1592,7 +1607,7 @@ export default function AdminDashboard() {
                       initial={{ scale: 0.9 }}
                       animate={{ scale: 1 }}
                       onClick={(e) => e.stopPropagation()}
-                      className="bg-white rounded-2xl p-8 max-w-md w-full border border-gray-200 shadow-xl"
+                      className="bg-white rounded-2xl p-4 sm:p-8 max-w-md w-full border border-gray-200 shadow-xl"
                     >
                       <h3 className="text-2xl font-bold text-gray-900 mb-6">Change Password</h3>
 
@@ -1988,10 +2003,12 @@ export default function AdminDashboard() {
                     onChange={(e) => handleUpdateScheduleStatus(selectedSchedule._id, e.target.value)}
                     className="px-3 py-1.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Under Review">Under Review</option>
+                    <option value="Inspection Scheduled">Inspection Scheduled</option>
+                    <option value="Offer Sent">Offer Sent</option>
+                    <option value="Purchased">Purchased</option>
+                    <option value="Rejected">Rejected</option>
                   </select>
                 </div>
               </div>

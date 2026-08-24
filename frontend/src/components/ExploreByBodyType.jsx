@@ -76,8 +76,17 @@ export default function ExploreByBodyType() {
     let isMounted = true;
     const fetchCarsByBodyType = async () => {
       setLoading(true);
+      const startTime = Date.now();
       try {
         const response = await carsAPI.getCars({ bodyType: activeBodyType, limit: 100 });
+        
+        // Enforce a minimum loader layout visibility of 600ms for smooth professional feel
+        const elapsedTime = Date.now() - startTime;
+        const minimumLoadTime = 600;
+        if (elapsedTime < minimumLoadTime) {
+          await new Promise((resolve) => setTimeout(resolve, minimumLoadTime - elapsedTime));
+        }
+
         if (isMounted) {
           setCars(response.data.cars || []);
         }
